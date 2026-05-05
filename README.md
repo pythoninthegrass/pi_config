@@ -15,11 +15,11 @@ Configuration for [pi](https://pi.dev/docs/latest) and [omp](https://pi.dev/docs
 
 ```bash
 # 1. Clone this repo
-git clone <repo-url>
+git clone git@github.com:pythoninthegrass/pi_config.git
 cd pi_config
 
 # 2. Create .env with your oMLX credentials
-cat > ~/git/pi_config/.env <<EOF
+cat > .env <<EOF
 OMLX_BASE_URL=http://127.0.0.1:8000
 OMLX_API_KEY=<your-api-key>
 EOF
@@ -47,7 +47,7 @@ omp     # oh-my-pi
 
 ```bash
 # Verify oMLX is reachable and model is loaded
-source ~/git/pi_config/.env
+source .env
 curl -s http://127.0.0.1:8000/v1/models \
   -H "Authorization: Bearer $OMLX_API_KEY" | python3 -m json.tool
 
