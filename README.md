@@ -25,7 +25,7 @@ OMLX_API_KEY=<your-api-key>
 EOF
 
 # 3. Install pi and omp
-npm install -g @pi-dev/pi
+npm install -g @mariozechner/pi-coding-agent
 mise use -g github:can1357/oh-my-pi@14.7.0
 
 # 4. Symlink configs
