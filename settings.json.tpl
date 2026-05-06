@@ -1,7 +1,7 @@
 {
   "lastChangelogVersion": "0.73.0",
   "defaultProvider": "omlx",
-  "defaultModel": "Qwen3.6-35B-A3B-bf16",
+  "defaultModel": "${OMLX_DEFAULT_MODEL}",
   "defaultThinkingLevel": "off",
   "enableInstallTelemetry": false,
   "compaction": {
