@@ -17,7 +17,7 @@ Setup guide for running local LLMs via [oMLX](https://github.com/jundot/omlx) fo
 | Cache Enabled | ON | ON | |
 | Memory Guard | ON | ON | Prevents Metal allocation failures |
 
-Set **Max Context Window** to match your model's native context length. The global default (131072) will silently reject prompts from agents that send large file contexts. On the Studio, bf16 weights consume ~70GB of the 108GB process-memory budget — the Hot/Cold cache values in the Studio column are at the upper safe bound.
+Set **Max Context Window** to match your model's native context length. The global default (131072) will silently reject prompts from agents that send large file contexts. On the Studio, bf16 weights consume ~74GB of the 108GB process-memory budget — the Hot/Cold cache values in the Studio column are at the upper safe bound.
 
 ---
 
@@ -27,11 +27,11 @@ Set **Max Context Window** to match your model's native context length. The glob
 
 | Model | Arch | Context | Thinking | SpecPrefill | MBP 64GB quant | Studio 128GB quant |
 |---|---|---|---|---|---|---|
-| `Qwen3.6-35B-A3B` | MoE | 262144 | ✓ | ✓ (MoE) | 8-bit (~37GB) | bf16 (~70GB) |
+| `Qwen3.6-35B-A3B` | MoE | 262144 | ✓ | ✓ (MoE) | 8-bit (~37GB) | bf16 (~74GB) |
 | `gemma-4-31B-it` | Dense/VLM | 131072 | ✓ | check | 8-bit (~35GB) | 8-bit (~35GB) |
 | `gemma-4-26b-a4b-it` | Dense/VLM | 131072 | ✓ | check | 4-bit (~16GB) | 4-bit (~16GB) |
 
-bf16 is unlocked by Studio's 128GB; MBP stays on 8-bit. For Gemma, bf16 (~70GB) fits on Studio but is not currently the configured default.
+bf16 is unlocked by Studio's 128GB; MBP stays on 8-bit. For Gemma, bf16 (~74GB) fits on Studio but is not currently the configured default.
 
 ### Related Models
 
@@ -89,7 +89,7 @@ Set model-level defaults to the **Thinking OFF** row.
 
 | Setting | MBP M4 Max 64GB | Studio M4 Max 128GB | Notes |
 |---|---|---|---|
-| Model Weights Quant | 8-bit (~37GB) | bf16 (~70GB) | bf16 requires ~2× memory bandwidth per token; benchmark t/s before assuming parity |
+| Model Weights Quant | 8-bit (~37GB) | bf16 (~74GB) | bf16 requires ~2× memory bandwidth per token; benchmark t/s before assuming parity |
 | TurboQuant KV Cache | ON | ON | |
 | Bits Per Channel | 8-bit | 8-bit | KV-cache quantization, not model weights; lower only if under cache pressure |
 | SpecPrefill | ON | ON | MoE architecture — highest benefit |
@@ -126,7 +126,7 @@ Gemma 4 uses different recommended parameters — update this section from the o
 
 | Setting | MBP M4 Max 64GB | Studio M4 Max 128GB | Notes |
 |---|---|---|---|
-| Model Weights Quant | 8-bit (~35GB) | 8-bit (~35GB) | bf16 (~70GB) fits on Studio but not currently default |
+| Model Weights Quant | 8-bit (~35GB) | 8-bit (~35GB) | bf16 (~74GB) fits on Studio but not currently default |
 | TurboQuant KV Cache | ON | ON | |
 | Bits Per Channel | 8-bit | 8-bit | KV-cache quantization, not model weights |
 | SpecPrefill | TBD | TBD | Gemma 4 uses hybrid attention, not MoE — benefit unclear |
@@ -197,19 +197,24 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
 - `ctrl+p` / `shift+ctrl+p` — cycle models (overwrites `settings.json` — avoid if you want a stable default)
 - `ctrl+l` — model picker
 
-**`~/.pi/agent/settings.json`** — not symlinked; keep per-machine. `defaultModel` does not support env var resolution (only `apiKey` and `headers` do), so set it to the locally-loaded quant:
+**`~/.pi/agent/settings.json`** (symlink to `~/git/pi_config/settings.json`) — `defaultModel` does not support env var resolution (only `apiKey` and `headers` do), so set it to the locally-loaded quant. Both IDs are present in `models.json` so the model picker (`ctrl+l`) shows both on both machines regardless.
 
 ```json
 {
+  "lastChangelogVersion": "0.73.0",
   "defaultProvider": "omlx",
-  "defaultModel": "Qwen3.6-35B-A3B-MLX-8bit",
+  "defaultModel": "Qwen3.6-35B-A3B-bf16",
   "defaultThinkingLevel": "off",
+  "enableInstallTelemetry": false,
   "compaction": { "enabled": true },
-  "warnings": { "anthropicExtraUsage": false }
+  "packages": [
+    "git:github.com/pythoninthegrass/pi-omlx-picker@main",
+    "npm:pi-mcp-adapter"
+  ],
+  "warnings": { "anthropicExtraUsage": false },
+  "theme": "claude-code"
 }
 ```
-
-On Studio, set `defaultModel` to `Qwen3.6-35B-A3B-bf16`. Both IDs are present in `models.json` so the model picker (`ctrl+l`) shows both on both machines.
 
 **`~/.pi/agent/models.json`** (symlink to `~/git/pi_config/models.json`) — shared across machines. Both quants are listed under each provider; `apiKey` accepts an env var name resolved at runtime.
 
