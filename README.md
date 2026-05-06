@@ -33,6 +33,7 @@ mkdir -p ~/.omp/agent ~/.pi/agent
 ln -sf $(pwd)/models.yml ~/.omp/agent/models.yml
 ln -sf $(pwd)/config.yml ~/.omp/agent/config.yml
 ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
+ln -sf $(pwd)/models.json ~/.pi/agent/models.json
 ln -sf $(pwd)/.mcp.json ~/.pi/agent/.mcp.json
 
 # 5. Add the .bash_aliases block (renders templates and exports env vars at shell startup)

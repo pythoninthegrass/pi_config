@@ -194,7 +194,9 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
 }
 ```
 
-**`~/.pi/agent/models.json`** — two providers: fast (OpenAI completions) and thinking-capable (Anthropic Messages API):
+**`~/.pi/agent/models.json`** (symlink to `~/git/pi_config/models.json`) — two providers: fast (OpenAI completions) and thinking-capable (Anthropic Messages API):
+
+`apiKey` accepts an env var name; pi resolves it at runtime from the environment.
 
 ```json
 {
@@ -202,12 +204,12 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
     "omlx": {
       "baseUrl": "http://127.0.0.1:8000/v1",
       "api": "openai-completions",
-      "apiKey": "<api-key>",
+      "apiKey": "OMLX_API_KEY",
       "authHeader": true,
       "models": [
         {
-          "id": "<model-id>",
-          "name": "<model-name> (fast)",
+          "id": "Qwen3.6-35B-A3B-MLX-8bit",
+          "name": "Qwen3.6 35B (fast)",
           "reasoning": false,
           "input": ["text"],
           "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
@@ -219,13 +221,13 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
     "omlx-thinking": {
       "baseUrl": "http://127.0.0.1:8000",
       "api": "anthropic-messages",
-      "apiKey": "<api-key>",
+      "apiKey": "OMLX_API_KEY",
       "authHeader": true,
       "compat": { "supportsEagerToolInputStreaming": false },
       "models": [
         {
-          "id": "<model-id>",
-          "name": "<model-name> (thinking)",
+          "id": "Qwen3.6-35B-A3B-MLX-8bit",
+          "name": "Qwen3.6 35B (thinking)",
           "reasoning": true,
           "input": ["text"],
           "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
