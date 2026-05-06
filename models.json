@@ -8,7 +8,16 @@
       "models": [
         {
           "id": "Qwen3.6-35B-A3B-MLX-8bit",
-          "name": "Qwen3.6 35B (fast)",
+          "name": "Qwen3.6 35B 8bit (fast)",
+          "reasoning": false,
+          "input": ["text"],
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "contextWindow": 262144,
+          "maxTokens": 8192
+        },
+        {
+          "id": "Qwen3.6-35B-A3B-MLX-bf16",
+          "name": "Qwen3.6 35B bf16 (fast)",
           "reasoning": false,
           "input": ["text"],
           "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
@@ -26,7 +35,16 @@
       "models": [
         {
           "id": "Qwen3.6-35B-A3B-MLX-8bit",
-          "name": "Qwen3.6 35B (thinking)",
+          "name": "Qwen3.6 35B 8bit (thinking)",
+          "reasoning": true,
+          "input": ["text"],
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "contextWindow": 262144,
+          "maxTokens": 8192
+        },
+        {
+          "id": "Qwen3.6-35B-A3B-MLX-bf16",
+          "name": "Qwen3.6 35B bf16 (thinking)",
           "reasoning": true,
           "input": ["text"],
           "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },

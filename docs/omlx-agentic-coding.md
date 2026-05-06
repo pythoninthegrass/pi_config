@@ -1,12 +1,12 @@
 # oMLX Agentic Coding on Apple Silicon
 
-Setup guide for running local LLMs via [oMLX](https://github.com/jundot/omlx) for agentic coding workloads. Covers global server config, per-model tuning, thinking controls, and agent integration (pi, opencode).
+Setup guide for running local LLMs via [oMLX](https://github.com/jundot/omlx) for agentic coding workloads. Covers global server config, per-model tuning, thinking controls, and agent integration (pi, opencode). Documented platforms: MacBook Pro M4 Max 64GB and Mac Studio M4 Max 128GB — tables carry per-machine columns where settings diverge.
 
 ---
 
 ## Hardware Reference
 
-| Setting | M4 Max 64GB | M4 Max 128GB | Notes |
+| Setting | MBP M4 Max 64GB | Studio M4 Max 128GB | Notes |
 |---|---|---|---|
 | Max Model Memory | model size + 10% | model size + 10% | Headroom for runtime overhead |
 | Max Process Memory | 85% | 85% | Leaves room for OS and concurrent processes |
@@ -17,7 +17,7 @@ Setup guide for running local LLMs via [oMLX](https://github.com/jundot/omlx) fo
 | Cache Enabled | ON | ON | |
 | Memory Guard | ON | ON | Prevents Metal allocation failures |
 
-Set **Max Context Window** to match your model's native context length. The global default (131072) will silently reject prompts from agents that send large file contexts.
+Set **Max Context Window** to match your model's native context length. The global default (131072) will silently reject prompts from agents that send large file contexts. On the Studio, bf16 weights consume ~70GB of the 108GB process-memory budget — the Hot/Cold cache values in the Studio column are at the upper safe bound.
 
 ---
 
@@ -25,13 +25,25 @@ Set **Max Context Window** to match your model's native context length. The glob
 
 ### Current Models
 
-| Model | Size (8bit) | Size (bf16) | Arch | Thinking | SpecPrefill | Context |
+| Model | Arch | Context | Thinking | SpecPrefill | MBP 64GB quant | Studio 128GB quant |
 |---|---|---|---|---|---|---|
-| `Qwen3.6-35B-A3B-MLX-8bit` | ~37GB | ~70GB | MoE | ✓ | ✓ (MoE) | 262144 |
-| `gemma-4-31B-it-MLX-8bit` | ~35GB | ~70GB | Dense/VLM | ✓ | check | 131072 |
-| `gemma-4-26b-a4b-it-4bit` | ~16GB | — | Dense/VLM | ✓ | check | 131072 |
+| `Qwen3.6-35B-A3B` | MoE | 262144 | ✓ | ✓ (MoE) | 8-bit (~37GB) | bf16 (~70GB) |
+| `gemma-4-31B-it` | Dense/VLM | 131072 | ✓ | check | 8-bit (~35GB) | 8-bit (~35GB) |
+| `gemma-4-26b-a4b-it` | Dense/VLM | 131072 | ✓ | check | 4-bit (~16GB) | 4-bit (~16GB) |
 
-**64GB constraint:** bf16 (~70GB) does not fit. Use 8bit. On 128GB, bf16 fits and is preferred for dedicated coding machines.
+bf16 is unlocked by Studio's 128GB; MBP stays on 8-bit. For Gemma, bf16 (~70GB) fits on Studio but is not currently the configured default.
+
+### Related Models
+
+Models available or worth knowing about — not fully profiled here.
+
+| Model | Arch | Quant | Size | Description |
+|---|---|---|---|---|
+| `Qwen3.6-35B-A3B-UD-MLX-4bit` | MoE | 4-bit UD | ~20GB | Unsloth Dynamic quant of the default model; lower RAM, some quality trade-off vs 8-bit |
+| `Qwen3.6-27B-UD-MLX-4bit` | Dense | 4-bit UD | ~14GB | Dense 27B; scores higher than 35B-A3B on AA Intelligence Index (46 vs 43); better tool-call reliability per community reports |
+| `Qwen3-Coder-30B-A3B-Instruct-MLX-4bit` | MoE | 4-bit | ~17GB | Purpose-built for agentic coding and tool calls; separate release from Qwen3.6 base |
+| `Qwen3.5-27B-Claude-4.6-Opus-Distilled-MLX-4bit` | Dense | 4-bit | ~14GB | Distilled from Claude 4.6 Opus; may carry different reasoning style than native Qwen3 |
+| `Qwen3-Next-80B-A3B-Instruct-MLX-8bit` | MoE hybrid | 8-bit | ~85GB | Fits Studio at 8-bit; general-purpose, not coding-tuned — no clear win over 35B-A3B for agentic work |
 
 ---
 
@@ -42,13 +54,13 @@ Qwen3.6 has no small variants (only 27B dense and 35B-A3B MoE exist). Qwen3.5-0.
 
 #### Basic Settings
 
-| Setting | Value | Confirmed | Notes |
+| Setting | MBP M4 Max 64GB | Studio M4 Max 128GB | Notes |
 |---|---|---|---|
-| Model Type | LLM | ✓ | Override auto-detect — misidentifies as VLM |
-| CTX Window | 262144 | ✓ | Native context length |
-| Max Tokens | 8192 | ✓ | Cap generation; 16384 if long file outputs needed |
-| TTL | Pinned | ✓ | Keep loaded permanently |
-| Trust Remote Code | ON | ✓ | Required; available from oMLX v0.3.8+ |
+| Model Type | VLM | VLM | Natively multimodal — vision encoder ships with the weights. Verify with image_url probe before relying (see Verification). |
+| CTX Window | 262144 | 262144 | Native context length |
+| Max Tokens | 8192 | 8192 | Cap generation; raise to 16384 on Studio if long file outputs needed |
+| TTL | Pinned | Pinned | Keep loaded permanently |
+| Trust Remote Code | ON | ON | Required; available from oMLX v0.3.8+ |
 
 #### Sampling
 
@@ -75,15 +87,16 @@ Set model-level defaults to the **Thinking OFF** row.
 
 #### Advanced
 
-| Setting | Value | Notes |
-|---|---|---|
-| TurboQuant KV Cache | ON | |
-| Bits Per Channel | 8-bit | Lower only if under cache pressure |
-| SpecPrefill | ON | MoE architecture — highest benefit |
-| SpecPrefill Draft Model | `Qwen3.5-0.8B-4bit` | Must be in model-dir |
-| Keep Rate | 30% | Paper baseline 20%; 30% for code accuracy |
-| Threshold Tokens | 8192 | SpecPrefill activates above this prompt length |
-| DFlash | OFF | No checkpoint available for this model |
+| Setting | MBP M4 Max 64GB | Studio M4 Max 128GB | Notes |
+|---|---|---|---|
+| Model Weights Quant | 8-bit (~37GB) | bf16 (~70GB) | bf16 requires ~2× memory bandwidth per token; benchmark t/s before assuming parity |
+| TurboQuant KV Cache | ON | ON | |
+| Bits Per Channel | 8-bit | 8-bit | KV-cache quantization, not model weights; lower only if under cache pressure |
+| SpecPrefill | ON | ON | MoE architecture — highest benefit |
+| SpecPrefill Draft Model | `Qwen3.5-0.8B-4bit` | `Qwen3.5-0.8B-4bit` | Must be in model-dir; stays 4-bit regardless of main-model quant |
+| Keep Rate | 30% | 30% | Paper baseline 20%; 30% for code accuracy |
+| Threshold Tokens | 8192 | 8192 | SpecPrefill activates above this prompt length |
+| DFlash | OFF | OFF | No checkpoint available for this model |
 
 ---
 
@@ -91,12 +104,12 @@ Set model-level defaults to the **Thinking OFF** row.
 
 #### Basic Settings
 
-| Setting | Value | Notes |
-|---|---|---|
-| Model Type | VLM | Correct — Gemma 4 has vision capability |
-| CTX Window | 131072 | Native context length |
-| Max Tokens | 8192 | |
-| TTL | Pinned | If primary model |
+| Setting | MBP M4 Max 64GB | Studio M4 Max 128GB | Notes |
+|---|---|---|---|
+| Model Type | VLM | VLM | Correct — Gemma 4 has vision capability |
+| CTX Window | 131072 | 131072 | Native context length |
+| Max Tokens | 8192 | 8192 | |
+| TTL | Pinned | Pinned | If primary model |
 
 #### Sampling
 
@@ -111,12 +124,13 @@ Gemma 4 uses different recommended parameters — update this section from the o
 
 #### Advanced
 
-| Setting | Value | Notes |
-|---|---|---|
-| TurboQuant KV Cache | ON | |
-| Bits Per Channel | 8-bit | |
-| SpecPrefill | TBD | Gemma 4 uses hybrid attention, not MoE — benefit unclear |
-| DFlash | OFF | |
+| Setting | MBP M4 Max 64GB | Studio M4 Max 128GB | Notes |
+|---|---|---|---|
+| Model Weights Quant | 8-bit (~35GB) | 8-bit (~35GB) | bf16 (~70GB) fits on Studio but not currently default |
+| TurboQuant KV Cache | ON | ON | |
+| Bits Per Channel | 8-bit | 8-bit | KV-cache quantization, not model weights |
+| SpecPrefill | TBD | TBD | Gemma 4 uses hybrid attention, not MoE — benefit unclear |
+| DFlash | OFF | OFF | |
 
 ---
 
@@ -183,20 +197,21 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
 - `ctrl+p` / `shift+ctrl+p` — cycle models (overwrites `settings.json` — avoid if you want a stable default)
 - `ctrl+l` — model picker
 
-**`~/.pi/agent/settings.json`**
+**`~/.pi/agent/settings.json`** — not symlinked; keep per-machine. `defaultModel` does not support env var resolution (only `apiKey` and `headers` do), so set it to the locally-loaded quant:
+
 ```json
 {
   "defaultProvider": "omlx",
-  "defaultModel": "<model-id>",
+  "defaultModel": "Qwen3.6-35B-A3B-MLX-8bit",
   "defaultThinkingLevel": "off",
   "compaction": { "enabled": true },
   "warnings": { "anthropicExtraUsage": false }
 }
 ```
 
-**`~/.pi/agent/models.json`** (symlink to `~/git/pi_config/models.json`) — two providers: fast (OpenAI completions) and thinking-capable (Anthropic Messages API):
+On Studio, set `defaultModel` to `Qwen3.6-35B-A3B-MLX-bf16`. Both IDs are present in `models.json` so the model picker (`ctrl+l`) shows both on both machines.
 
-`apiKey` accepts an env var name; pi resolves it at runtime from the environment.
+**`~/.pi/agent/models.json`** (symlink to `~/git/pi_config/models.json`) — shared across machines. Both quants are listed under each provider; `apiKey` accepts an env var name resolved at runtime.
 
 ```json
 {
@@ -303,10 +318,15 @@ warnings:
 - `discovery.type: llama.cpp` — reads `/v1/models` in OpenAI shape; discovered models default to `contextWindow: 128000`, override per model in the `models` array
 - `defaultThinkingLevel: off` — omp's default is `medium`, which adds significant latency on every request
 - omp caches discovered models in `~/.omp/agent/models.db` (SQLite); `contextWindow` overrides in `models.yml` apply on next cache refresh
+- Both quants are listed in `models.yml`; `defaultModel` in `config.yml` is rendered by `envsubst` at shell startup, so it can reference `$OMP_MODEL` if templated
 
-**Model selection:** omp does not always respect `defaultModel` in non-interactive (`-p`) mode without `--model`. Use a shell function wrapper:
+**Model selection:** omp does not always respect `defaultModel` in non-interactive (`-p`) mode without `--model`. Use a shell function wrapper with `OMP_MODEL` set per machine in the shell profile:
 
 ```bash
+# ~/.zshrc (or equivalent) — set per machine, not tracked in this repo
+# MBP:    export OMP_MODEL="Qwen3.6-35B-A3B-MLX-8bit"
+# Studio: export OMP_MODEL="Qwen3.6-35B-A3B-MLX-bf16"
+
 omp() { command omp --model "${OMP_MODEL:-Qwen3.6-35B-A3B-MLX-8bit}" "$@"; }
 ```
 
@@ -320,14 +340,14 @@ omp() { command omp --model "${OMP_MODEL:-Qwen3.6-35B-A3B-MLX-8bit}" "$@"; }
 
 ## Performance Benchmarks
 
-Tested on M4 Max 64GB, `Qwen3.6-35B-A3B-MLX-8bit`, prompt: `"Write a fibonacci sequence in go in /tmp"`.
+Tested on M4 Max 64GB (MBP), `Qwen3.6-35B-A3B-MLX-8bit`, prompt: `"Write a fibonacci sequence in go in /tmp"`.
 
-| Agent | Run 1 | Run 2 | Notes |
-|---|---|---|---|
-| pi | ~16s | ~16s | No SpecPrefill; system prompt ~23 tokens; tool calls dominate |
-| omp | ~25s | ~19s | SpecPrefill on ~26k conv tokens; 10s sparse prefill per request |
+| Agent | MBP 64GB / 8-bit, Run 1 | MBP 64GB / 8-bit, Run 2 | Studio 128GB / bf16, Run 1 | Studio 128GB / bf16, Run 2 | Notes |
+|---|---|---|---|---|---|
+| pi | ~16s | ~16s | pending | pending | MBP: no SpecPrefill; system prompt ~23 tokens; tool calls dominate |
+| omp | ~25s | ~19s | pending | pending | MBP: SpecPrefill on ~26k conv tokens; 10s sparse prefill per request |
 
-**Why omp is slower:** omp sends a ~4,600-token system prompt per request. With SpecPrefill threshold at 8,192 tokens, the full prompt (system + conv) triggers SpecPrefill scoring on every turn. The KV cache prefix (`cached: 2048`) does not grow between sessions because the system prompt varies slightly, breaking cache reuse.
+**Why omp is slower (MBP):** omp sends a ~4,600-token system prompt per request. With SpecPrefill threshold at 8,192 tokens, the full prompt (system + conv) triggers SpecPrefill scoring on every turn. The KV cache prefix (`cached: 2048`) does not grow between sessions because the system prompt varies slightly, breaking cache reuse. bf16 increases per-token cost everywhere, so the omp/pi gap may widen on Studio.
 
 **omp cache behaviour:** `draft cache hit` (SpecPrefill draft model cache) improves on repeated identical prompts within a session. Cross-session KV cache reuse is limited by system prompt variance.
 
@@ -378,6 +398,20 @@ with open('/tmp/thinking_test.json', 'r', errors='replace') as f:
     r = json.loads(f.read())
 for block in r.get('content', []):
     print(block.get('type'), ':', (block.get('text') or block.get('thinking',''))[:100])
+"
+```
+
+```bash
+# Verify VLM image input is working (Qwen3.6-35B-A3B only)
+curl -s http://localhost:8000/v1/chat/completions \
+  -H "Authorization: Bearer <api-key>" \
+  -H "Content-Type: application/json" \
+  -d "{\"model\": \"$MODEL\", \"max_tokens\": 64, \"messages\": [{\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"What is in this image? One sentence.\"}, {\"type\": \"image_url\", \"image_url\": {\"url\": \"https://qianwen-res.oss-accelerate.aliyuncs.com/Qwen3.5/demo/CI_Demo/mathv-1327.jpg\"}}]}]}" \
+  -o /tmp/vlm_test.json && python3 -c "
+import json
+with open('/tmp/vlm_test.json', 'r', errors='replace') as f:
+    r = json.loads(f.read())
+print(r['choices'][0]['message'].get('content', r.get('error')))
 "
 ```
 
