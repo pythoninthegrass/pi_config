@@ -66,3 +66,9 @@ pi -e extensions/my-extension.ts -p "your test prompt"
 ```
 
 Available events: `tool_call`, `tool_result`, `session_start`, `user_bash`. See [pi extensions docs](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/extensions.md) for the full API.
+
+---
+
+## Benchmarking
+
+See [docs/rtk-benchmark.md](rtk-benchmark.md) for exact before/after steps measuring token reduction from `rtk-rewrite.ts`.
