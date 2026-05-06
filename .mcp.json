@@ -13,6 +13,18 @@
         "@upstash/context7-mcp"
       ]
     },
+    "screencap": {
+      "command": "$HOME/.local/bin/uv",
+      "args": [
+        "--directory",
+        "${SCREENCAP_DIR:-$HOME/git/screencap}",
+        "run",
+        "server.py"
+      ],
+      "env": {
+        "UV_PROJECT_ENVIRONMENT": "$HOME/git/screencap/.venv"
+      }
+    },
     "serena": {
       "command": "uvx",
       "args": [
