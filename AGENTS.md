@@ -17,8 +17,7 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 | `models.yml.tpl` | omp models template (envsubst source) | rendered → `models.yml` at shell startup |
 | `config.yml.tpl` | omp config template (envsubst source) | rendered → `config.yml` at shell startup |
 | `.mcp.json` | MCP server config for pi | symlinked to `~/.pi/agent/.mcp.json` |
-| `themes/adventure-time.json` | pi color theme | symlinked to `~/.pi/agent/themes/adventure-time.json` |
-| `themes/claude-code.json` | pi color theme | symlinked to `~/.pi/agent/themes/claude-code.json` |
+| `themes/` | pi color themes | symlinked to `~/.pi/agent/themes/` |
 
 ## Template Rendering
 
@@ -37,14 +36,13 @@ markdownlint -f -c .markdownlint.jsonc .
 ## Symlink Setup
 
 ```bash
-mkdir -p ~/.omp/agent ~/.pi/agent ~/.pi/agent/themes
+mkdir -p ~/.omp/agent ~/.pi/agent
 ln -sf $(pwd)/models.yml ~/.omp/agent/models.yml
 ln -sf $(pwd)/config.yml ~/.omp/agent/config.yml
 ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
 ln -sf $(pwd)/models.json ~/.pi/agent/models.json
 ln -sf $(pwd)/.mcp.json ~/.pi/agent/.mcp.json
-ln -sf $(pwd)/themes/adventure-time.json ~/.pi/agent/themes/adventure-time.json
-ln -sf $(pwd)/themes/claude-code.json ~/.pi/agent/themes/claude-code.json
+ln -sf $(pwd)/themes ~/.pi/agent/themes
 ```
 
 ## Context7
