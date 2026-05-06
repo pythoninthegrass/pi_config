@@ -349,7 +349,7 @@ Tested on M4 Max 64GB (MBP), `Qwen3.6-35B-A3B-MLX-8bit`, prompt: `"Write a fibon
 
 | Agent | MBP 64GB / 8-bit, Run 1 | MBP 64GB / 8-bit, Run 2 | Studio 128GB / bf16, Run 1 | Studio 128GB / bf16, Run 2 | Notes |
 |---|---|---|---|---|---|
-| pi | ~16s | ~16s | pending | pending | MBP: no SpecPrefill; system prompt ~23 tokens; tool calls dominate |
+| pi | ~16s | ~16s | ~16s | ~16s | No SpecPrefill; system prompt ~23 tokens; tool calls dominate. No difference between 8-bit and bf16 at this prompt length. |
 | omp | ~25s | ~19s | pending | pending | MBP: SpecPrefill on ~26k conv tokens; 10s sparse prefill per request |
 
 **Why omp is slower (MBP):** omp sends a ~4,600-token system prompt per request. With SpecPrefill threshold at 8,192 tokens, the full prompt (system + conv) triggers SpecPrefill scoring on every turn. The KV cache prefix (`cached: 2048`) does not grow between sessions because the system prompt varies slightly, breaking cache reuse. bf16 increases per-token cost everywhere, so the omp/pi gap may widen on Studio.

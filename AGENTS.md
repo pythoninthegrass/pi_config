@@ -17,7 +17,8 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 | `models.yml.tpl` | omp models template (envsubst source) | rendered → `models.yml` at shell startup |
 | `config.yml.tpl` | omp config template (envsubst source) | rendered → `config.yml` at shell startup |
 | `.mcp.json` | MCP server config for pi | symlinked to `~/.pi/agent/.mcp.json` |
-| `adventure-time.json` | pi color theme | referenced by `settings.json` |
+| `themes/adventure-time.json` | pi color theme | symlinked to `~/.pi/agent/themes/adventure-time.json` |
+| `themes/claude-code.json` | pi color theme | symlinked to `~/.pi/agent/themes/claude-code.json` |
 
 ## Template Rendering
 
@@ -36,12 +37,14 @@ markdownlint -f -c .markdownlint.jsonc .
 ## Symlink Setup
 
 ```bash
-mkdir -p ~/.omp/agent ~/.pi/agent
+mkdir -p ~/.omp/agent ~/.pi/agent ~/.pi/agent/themes
 ln -sf $(pwd)/models.yml ~/.omp/agent/models.yml
 ln -sf $(pwd)/config.yml ~/.omp/agent/config.yml
 ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
 ln -sf $(pwd)/models.json ~/.pi/agent/models.json
 ln -sf $(pwd)/.mcp.json ~/.pi/agent/.mcp.json
+ln -sf $(pwd)/themes/adventure-time.json ~/.pi/agent/themes/adventure-time.json
+ln -sf $(pwd)/themes/claude-code.json ~/.pi/agent/themes/claude-code.json
 ```
 
 ## Context7
@@ -60,4 +63,5 @@ Always use Context7 MCP when I need library/API documentation, code generation, 
 - `models.yml` / `config.yml` must not be committed (gitignored). Only edit their `.tpl` sources.
 - `models.json` uses env var names as `apiKey` values — do not substitute literal keys.
 - oMLX must be running on `http://127.0.0.1:8000` before launching either agent.
+- Active model is `Qwen3.6-35B-A3B-bf16` (Studio, 128GB) / `Qwen3.6-35B-A3B-MLX-8bit` (MBP, 64GB). Both IDs are listed in `models.json` and `models.yml.tpl`; `defaultModel` in `settings.json` must be set to the locally-loaded quant.
 - See `docs/omlx-agentic-coding.md` for hardware tuning, model profiles, SpecPrefill config, and thinking controls.
