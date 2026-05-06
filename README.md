@@ -7,7 +7,7 @@ Configuration for [pi](https://pi.dev/docs/latest) and [omp](https://pi.dev/docs
 - macOS on Apple Silicon (M-series) with 64+ GB RAM
 - [oMLX](https://github.com/jundot/omlx) running locally on port 8000
 - [mise](https://mise.jdx.dev) for runtime management (`brew install mise`)
-- `OMLX_BASE_URL` and `OMLX_API_KEY` set in `~/git/pi_config/.env`
+- `OMLX_BASE_URL`, `OMLX_API_KEY`, and `OMLX_DEFAULT_MODEL` set in `~/git/pi_config/.env`
 - `envsubst` available (ships with `gettext`: `brew install gettext`)
 - `~/git/bashrc/.bash_aliases` sourced in your shell (renders templates at startup)
 
@@ -18,10 +18,11 @@ Configuration for [pi](https://pi.dev/docs/latest) and [omp](https://pi.dev/docs
 git clone git@github.com:pythoninthegrass/pi_config.git
 cd pi_config
 
-# 2. Create .env with your oMLX credentials
+# 2. Create .env with your oMLX credentials and per-machine model
 cat > .env <<EOF
 OMLX_BASE_URL=http://127.0.0.1:8000
 OMLX_API_KEY=<your-api-key>
+OMLX_DEFAULT_MODEL=<model-id>
 EOF
 
 # 3. Install pi and omp

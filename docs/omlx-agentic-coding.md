@@ -197,13 +197,15 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
 - `ctrl+p` / `shift+ctrl+p` — cycle models (overwrites `settings.json` — avoid if you want a stable default)
 - `ctrl+l` — model picker
 
-**`~/.pi/agent/settings.json`** (symlink to `~/git/pi_config/settings.json`) — `defaultModel` does not support env var resolution (only `apiKey` and `headers` do), so set it to the locally-loaded quant. Both IDs are present in `models.json` so the model picker (`ctrl+l`) shows both on both machines regardless.
+**`~/.pi/agent/settings.json`** (symlink to `~/git/pi_config/settings.json`) — rendered at shell startup from `settings.json.tpl` via `envsubst`. `OMLX_DEFAULT_MODEL` in `.env` sets `defaultModel` per machine. Both quant IDs are present in `models.json` so the model picker (`ctrl+l`) shows both on both machines regardless.
+
+`settings.json.tpl`:
 
 ```json
 {
   "lastChangelogVersion": "0.73.0",
   "defaultProvider": "omlx",
-  "defaultModel": "Qwen3.6-35B-A3B-bf16",
+  "defaultModel": "${OMLX_DEFAULT_MODEL}",
   "defaultThinkingLevel": "off",
   "enableInstallTelemetry": false,
   "compaction": { "enabled": true },
@@ -212,7 +214,7 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
     "npm:pi-mcp-adapter"
   ],
   "warnings": { "anthropicExtraUsage": false },
-  "theme": "claude-code"
+  "theme": "adventure-time"
 }
 ```
 

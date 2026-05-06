@@ -10,7 +10,8 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 
 | File | Purpose | Managed by |
 |---|---|---|
-| `settings.json` | pi agent settings (provider, model, theme) | symlinked to `~/.pi/agent/settings.json` |
+| `settings.json` | pi agent settings (provider, model, theme) (rendered) | symlinked to `~/.pi/agent/settings.json` |
+| `settings.json.tpl` | pi settings template (envsubst source) | rendered → `settings.json` at shell startup |
 | `models.json` | pi provider definitions (omlx, omlx-thinking) | symlinked to `~/.pi/agent/models.json` |
 | `models.yml` | omp provider definitions (rendered) | symlinked to `~/.omp/agent/models.yml` |
 | `config.yml` | omp settings (rendered) | symlinked to `~/.omp/agent/config.yml` |
@@ -21,9 +22,13 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 
 ## Template Rendering
 
-`models.yml` and `config.yml` are rendered from their `.tpl` counterparts via `envsubst` at shell startup (sourced from `~/git/bashrc/.bash_aliases`). The templates interpolate `OMLX_BASE_URL` and `OMLX_API_KEY` from `.env`.
+`models.yml`, `config.yml`, and `settings.json` are rendered from their `.tpl` counterparts via `envsubst` at shell startup (sourced from `~/git/bashrc/.bash_aliases`).
 
-`.yml` files are gitignored — only the `.tpl` sources are tracked. Edit the `.tpl` files, not the rendered output.
+- `models.yml.tpl` interpolates `OMLX_BASE_URL` and `OMLX_API_KEY`
+- `config.yml.tpl` has no variable substitutions (static template)
+- `settings.json.tpl` interpolates `OMLX_DEFAULT_MODEL`
+
+`.yml` files and `settings.json` are gitignored — only the `.tpl` sources are tracked. Edit the `.tpl` files, not the rendered output.
 
 `models.json` (pi) uses `apiKey: "OMLX_API_KEY"` — pi resolves env var names at runtime, so no template rendering is needed.
 
@@ -61,5 +66,5 @@ Always use Context7 MCP when I need library/API documentation, code generation, 
 - `models.yml` / `config.yml` must not be committed (gitignored). Only edit their `.tpl` sources.
 - `models.json` uses env var names as `apiKey` values — do not substitute literal keys.
 - oMLX must be running on `http://127.0.0.1:8000` before launching either agent.
-- Active model is `Qwen3.6-35B-A3B-bf16` (Studio, 128GB) / `Qwen3.6-35B-A3B-MLX-8bit` (MBP, 64GB). Both IDs are listed in `models.json` and `models.yml.tpl`; `defaultModel` in `settings.json` must be set to the locally-loaded quant.
+- Active model is `Qwen3.6-35B-A3B-bf16` (Studio, 128GB) / `Qwen3.6-35B-A3B-MLX-8bit` (MBP, 64GB). Both IDs are listed in `models.json` and `models.yml.tpl`; `defaultModel` in `settings.json` is set via `OMLX_DEFAULT_MODEL` in `.env` — set it to the locally-loaded quant per machine.
 - See `docs/omlx-agentic-coding.md` for hardware tuning, model profiles, SpecPrefill config, and thinking controls.
