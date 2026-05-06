@@ -1,6 +1,7 @@
 # ETC
 .env
 *.yml
+CLAUDE.md
 
 # General
 .DS_Store
@@ -56,3 +57,4 @@ tmbootpicker.efi
 # INCLUDE
 !**/*.example
 !**/.gitkeep
+!AGENTS.md

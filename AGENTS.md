@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to LLM agents when working with code in this repository.
 
 ## What This Repo Is
 
@@ -43,6 +43,17 @@ ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
 ln -sf $(pwd)/models.json ~/.pi/agent/models.json
 ln -sf $(pwd)/.mcp.json ~/.pi/agent/.mcp.json
 ```
+
+## Context7
+
+Always use Context7 MCP when I need library/API documentation, code generation, setup or configuration steps without me having to explicitly ask.
+
+### Libraries
+
+- badlogic/pi-mono
+- can1357/oh-my-pi
+- jdx/mise
+- websites/pi_dev
 
 ## Key Constraints
 
