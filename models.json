@@ -16,7 +16,7 @@
           "maxTokens": 8192
         },
         {
-          "id": "Qwen3.6-35B-A3B-MLX-bf16",
+          "id": "Qwen3.6-35B-A3B-bf16",
           "name": "Qwen3.6 35B bf16 (fast)",
           "reasoning": false,
           "input": ["text"],
@@ -43,7 +43,7 @@
           "maxTokens": 8192
         },
         {
-          "id": "Qwen3.6-35B-A3B-MLX-bf16",
+          "id": "Qwen3.6-35B-A3B-bf16",
           "name": "Qwen3.6 35B bf16 (thinking)",
           "reasoning": true,
           "input": ["text"],

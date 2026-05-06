@@ -209,7 +209,7 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
 }
 ```
 
-On Studio, set `defaultModel` to `Qwen3.6-35B-A3B-MLX-bf16`. Both IDs are present in `models.json` so the model picker (`ctrl+l`) shows both on both machines.
+On Studio, set `defaultModel` to `Qwen3.6-35B-A3B-bf16`. Both IDs are present in `models.json` so the model picker (`ctrl+l`) shows both on both machines.
 
 **`~/.pi/agent/models.json`** (symlink to `~/git/pi_config/models.json`) — shared across machines. Both quants are listed under each provider; `apiKey` accepts an env var name resolved at runtime.
 
@@ -325,7 +325,7 @@ warnings:
 ```bash
 # ~/.zshrc (or equivalent) — set per machine, not tracked in this repo
 # MBP:    export OMP_MODEL="Qwen3.6-35B-A3B-MLX-8bit"
-# Studio: export OMP_MODEL="Qwen3.6-35B-A3B-MLX-bf16"
+# Studio: export OMP_MODEL="Qwen3.6-35B-A3B-bf16"
 
 omp() { command omp --model "${OMP_MODEL:-Qwen3.6-35B-A3B-MLX-8bit}" "$@"; }
 ```
