@@ -19,6 +19,7 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 | `config.yml.tpl` | omp config template (envsubst source) | rendered → `config.yml` at shell startup |
 | `.mcp.json` | MCP server config for pi | symlinked to `~/.pi/agent/.mcp.json` |
 | `themes/` | pi color themes | symlinked to `~/.pi/agent/themes/` |
+| `extensions/` | pi extensions (rtk auto-rewrite hook) | symlinked to `~/.pi/agent/extensions/` |
 
 ## Template Rendering
 
@@ -48,6 +49,7 @@ ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
 ln -sf $(pwd)/models.json ~/.pi/agent/models.json
 ln -sf $(pwd)/.mcp.json ~/.pi/agent/.mcp.json
 ln -sf $(pwd)/themes ~/.pi/agent/themes
+ln -sf $(pwd)/extensions ~/.pi/agent/extensions
 ```
 
 ## Context7
@@ -60,6 +62,7 @@ Always use Context7 MCP when I need library/API documentation, code generation, 
 - can1357/oh-my-pi
 - jdx/mise
 - websites/pi_dev
+- rtk-ai/rtk
 
 ## Key Constraints
 
@@ -68,3 +71,6 @@ Always use Context7 MCP when I need library/API documentation, code generation, 
 - oMLX must be running on `http://127.0.0.1:8000` before launching either agent.
 - Active model is `Qwen3.6-35B-A3B-bf16` (Studio, 128GB) / `Qwen3.6-35B-A3B-MLX-8bit` (MBP, 64GB). Both IDs are listed in `models.json` and `models.yml.tpl`; `defaultModel` in `settings.json` is set via `OMLX_DEFAULT_MODEL` in `.env` — set it to the locally-loaded quant per machine.
 - See `docs/omlx-agentic-coding.md` for hardware tuning, model profiles, SpecPrefill config, and thinking controls.
+- `extensions/rtk-rewrite.ts` requires `rtk` (>= 0.38) on PATH. If rtk is absent the hook fails open — bash still runs, just unrewritten.
+- Add `rtk-ai/rtk` to the Context7 libraries list if working with the rtk extension.
+- See `docs/extensions.md` for extension architecture, rtk-rewrite internals, and how to write new extensions.

@@ -36,6 +36,7 @@ ln -sf $(pwd)/config.yml ~/.omp/agent/config.yml
 ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
 ln -sf $(pwd)/models.json ~/.pi/agent/models.json
 ln -sf $(pwd)/.mcp.json ~/.pi/agent/.mcp.json
+ln -sf $(pwd)/extensions ~/.pi/agent/extensions
 
 # 5. Add the .bash_aliases block (renders templates and exports env vars at shell startup)
 #    See docs/omlx-agentic-coding.md for the exact block to add
@@ -79,3 +80,4 @@ Expected results on M4 Max 64GB with `Qwen3.6-35B-A3B-MLX-8bit`:
 - [omp / oh-my-pi](https://github.com/can1357/oh-my-pi): same codebase as pi; heavier default system prompt
 - [oMLX](https://github.com/jundot/omlx): local inference server for Apple Silicon
 - [oMLX agentic coding guide](docs/omlx-agentic-coding.md): hardware tuning, model profiles, agent config
+- [rtk](https://github.com/rtk-ai/rtk): CLI proxy that filters/summarizes command output; wired into pi via `extensions/rtk-rewrite.ts`
