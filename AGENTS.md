@@ -20,6 +20,7 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 | `.mcp.json` | MCP server config for pi | symlinked to `~/.pi/agent/.mcp.json` |
 | `themes/` | pi color themes | symlinked to `~/.pi/agent/themes/` |
 | `extensions/` | pi extensions (rtk auto-rewrite hook) | symlinked to `~/.pi/agent/extensions/` |
+| `model_settings.json` | oMLX per-model server settings (context window, SpecPrefill, TurboQuant, thinking) | symlinked to `~/.omlx/model_settings.json` |
 
 ## Template Rendering
 
@@ -50,6 +51,7 @@ ln -sf $(pwd)/models.json ~/.pi/agent/models.json
 ln -sf $(pwd)/.mcp.json ~/.pi/agent/.mcp.json
 ln -sf $(pwd)/themes ~/.pi/agent/themes
 ln -sf $(pwd)/extensions ~/.pi/agent/extensions
+ln -sf $(pwd)/model_settings.json ~/.omlx/model_settings.json
 ```
 
 ## Context7
@@ -61,6 +63,7 @@ Always use Context7 MCP when I need library/API documentation, code generation, 
 - badlogic/pi-mono
 - can1357/oh-my-pi
 - jdx/mise
+- jundot/omlx
 - websites/pi_dev
 - rtk-ai/rtk
 
