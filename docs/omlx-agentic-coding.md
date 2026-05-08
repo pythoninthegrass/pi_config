@@ -40,6 +40,7 @@ Models available or worth knowing about — not fully profiled here.
 | Model | Arch | Quant | Size | Description |
 |---|---|---|---|---|
 | `Qwen3.6-35B-A3B-UD-MLX-4bit` | MoE | 4-bit UD | ~20GB | Unsloth Dynamic quant of the default model; lower RAM, some quality trade-off vs 8-bit |
+| `Qwen3.6-27B-MLX-8bit` | Dense | 8-bit | ~28GB | Dense 27B 8-bit (on disk); profiled at 262144 context; simpler chat template than 35B-A3B (no Unsloth patches, standard argument serialization) — confirmed more stable in multi-turn tool-call lanes |
 | `Qwen3.6-27B-UD-MLX-4bit` | Dense | 4-bit UD | ~14GB | Dense 27B; scores higher than 35B-A3B on AA Intelligence Index (46 vs 43); better tool-call reliability per community reports |
 | `Qwen3-Coder-30B-A3B-Instruct-MLX-4bit` | MoE | 4-bit | ~17GB | Purpose-built for agentic coding and tool calls; separate release from Qwen3.6 base |
 | `Qwen3.5-27B-Claude-4.6-Opus-Distilled-MLX-4bit` | Dense | 4-bit | ~14GB | Distilled from Claude 4.6 Opus; may carry different reasoning style than native Qwen3 |
@@ -357,6 +358,56 @@ Tested on M4 Max 64GB (MBP), `Qwen3.6-35B-A3B-MLX-8bit`, prompt: `"Write a fibon
 **Why omp is slower (MBP):** omp sends a ~4,600-token system prompt per request. With SpecPrefill threshold at 8,192 tokens, the full prompt (system + conv) triggers SpecPrefill scoring on every turn. The KV cache prefix (`cached: 2048`) does not grow between sessions because the system prompt varies slightly, breaking cache reuse. bf16 increases per-token cost everywhere, so the omp/pi gap may widen on Studio.
 
 **omp cache behaviour:** `draft cache hit` (SpecPrefill draft model cache) improves on repeated identical prompts within a session. Cross-session KV cache reuse is limited by system prompt variance.
+
+---
+
+## Troubleshooting — "OMLX returned an empty assistant stop twice"
+
+pi (via `pi-omlx-picker`) emits this warning when an assistant turn produces zero output tokens and the bridge's recovery retry also comes back empty. The bridge retries once with `thinking_budget: 0`, `enable_thinking: false`, `preserve_thinking: false` — if both attempts return zero tokens, pi halts with "Manual intervention needed."
+
+### Diagnosing the failure
+
+Read `~/.pi/packages/pi-omlx-picker/log/provider-debug.log` and find the most recent `kind: "assistant_stop_diagnosis"` entry. Key fields:
+
+| Field | What to look for |
+|---|---|
+| `outputTokens` | `0` = truly empty (not truncation) |
+| `contextRatio` | > 0.8 = context pressure; < 0.2 = not the cause |
+| `likelyOutputLimit` | `true` = max_tokens cap hit; `false` = not truncation |
+| `recoveryThinkingOverride.blockedChatTemplateKeys` | non-empty = `forced_ct_kwargs` is blocking override |
+| `trulyEmptyRetryInFlight` | `true` = already the second attempt |
+
+Run `/omlx-status` inside pi for a live summary (session trail, stop diagnosis, recovery counts).
+
+### Known failure: 35B-A3B MoE on long agentic turns
+
+Observed: `Qwen3.6-35B-A3B-MLX-8bit`, turnIndex 19, 44k input tokens (17% of window), `outputTokens: 0`, `stopReason: "stop"`, both thinking-enabled and thinking-disabled recovery turns empty. Recovery override available (`blockedChatTemplateKeys: []`).
+
+Root cause: chat-template / tool-parser lane issue, not context length or thinking-budget config. The 35B-A3B's `chat_template.jinja` includes Unsloth patches (developer-role merging, `tojson | safe` argument serialization) that diverge from the 27B dense template. On long multi-turn agentic sessions, the serialized conversation context apparently triggers the model to emit EOS immediately.
+
+### Fix 1: Switch to `Qwen3.6-27B-MLX-8bit`
+
+1. Load `Qwen3.6-27B-MLX-8bit` in the oMLX menu-bar app (weights at `~/.omlx/models/Qwen3.6-27B-MLX-8bit/`; settings pre-configured in `~/.omlx/model_settings.json`).
+2. In pi, `/model` → pick the 27B. Bridge resets recovery state on `model_select`.
+3. Verify: run an agentic task and confirm `kind: "turn_end"` with `outputTokens > 0` in the debug log and no `kind: "incomplete_stop"` entries.
+
+### Fix 2: Align the 35B-A3B chat template
+
+If you want to keep using the 35B or the 27B also fails, copy the 27B's simpler template over the 35B's Unsloth-patched one. This aligns the XML tool-call serialization format across both models (per the `pi-omlx-picker/docs/qwen.md` pattern).
+
+```bash
+cp ~/.omlx/models/Qwen3.6-27B-MLX-8bit/chat_template.jinja \
+   ~/.omlx/models/Qwen3.6-35B-A3B-MLX-8bit/chat_template.jinja
+
+# verify byte-identical
+shasum -a 256 \
+  ~/.omlx/models/Qwen3.6-27B-MLX-8bit/chat_template.jinja \
+  ~/.omlx/models/Qwen3.6-35B-A3B-MLX-8bit/chat_template.jinja
+```
+
+Then reload the 35B in oMLX (menu-bar "Reload" or server restart). Retest.
+
+**Note:** the 27B template removes the dual-system-message merge and Unsloth argument-serialization logic from the 35B. This should be safe for Pi/oMLX agentic use but may affect edge cases involving `developer` role messages or multi-value tool arguments.
 
 ---
 
