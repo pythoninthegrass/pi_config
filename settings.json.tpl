@@ -1,7 +1,7 @@
 {
   "lastChangelogVersion": "0.73.0",
-  "defaultProvider": "omlx",
-  "defaultModel": "${OMLX_DEFAULT_MODEL}",
+  "defaultProvider": "${PI_DEFAULT_PROVIDER}",
+  "defaultModel": "${PI_DEFAULT_MODEL}",
   "defaultThinkingLevel": "off",
   "enableInstallTelemetry": false,
   "compaction": {

@@ -1,5 +1,22 @@
 {
   "providers": {
+    "llamacpp": {
+      "baseUrl": "http://127.0.0.1:8000/v1",
+      "api": "openai-completions",
+      "apiKey": "LLAMACPP_API_KEY",
+      "authHeader": false,
+      "models": [
+        {
+          "id": "Qwen3.6-27B-Q8_0.gguf",
+          "name": "Qwen3.6 27B Q8_0 (llama.cpp)",
+          "reasoning": false,
+          "input": ["text"],
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "contextWindow": 8192,
+          "maxTokens": 4096
+        }
+      ]
+    },
     "omlx": {
       "baseUrl": "http://127.0.0.1:8000/v1",
       "api": "openai-completions",
