@@ -72,7 +72,9 @@ Always use Context7 MCP when I need library/API documentation, code generation, 
 - `models.yml` / `config.yml` must not be committed (gitignored). Only edit their `.tpl` sources.
 - `models.json` uses env var names as `apiKey` values — do not substitute literal keys.
 - oMLX must be running on `http://127.0.0.1:8000` before launching either agent.
-- Active model is `Qwen3.6-35B-A3B-bf16` (Studio, 128GB) / `Qwen3.6-35B-A3B-MLX-8bit` (MBP, 64GB). Both IDs are listed in `models.json` and `models.yml.tpl`; `defaultModel` in `settings.json` is set via `OMLX_DEFAULT_MODEL` in `.env` — set it to the locally-loaded quant per machine.
+- Active model is `Qwen3.6-35B-A3B-bf16` (Studio, 128GB) / `Qwen3.6-35B-A3B-MLX-8bit` (MBP, 64GB). Both IDs are listed in `models.json` and `models.yml.tpl`; `defaultModel` in `settings.json` is set via `PI_DEFAULT_PROVIDER` / `PI_DEFAULT_MODEL` in `.env` — set per machine.
+- **Switching backends (Mac)**: `ctrl+l` inside pi switches provider/model for the current session — no `.env` change needed. To change the persistent default, edit `PI_DEFAULT_PROVIDER` and `PI_DEFAULT_MODEL` in `.env` and re-source the shell. Do not comment out `.env` entirely — unset vars leave literal `${PI_DEFAULT_PROVIDER}` in the rendered `settings.json`.
+- **WSL**: `pi-omlx-picker` is automatically stripped from `packages` at render time (uname check in `.bash_aliases`) — omlx entries in `models.json` are inert on WSL.
 - See `docs/omlx-agentic-coding.md` for hardware tuning, model profiles, SpecPrefill config, and thinking controls.
 - `extensions/rtk-rewrite.ts` requires `rtk` (>= 0.38) on PATH. If rtk is absent the hook fails open — bash still runs, just unrewritten.
 - Add `rtk-ai/rtk` to the Context7 libraries list if working with the rtk extension.
