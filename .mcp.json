@@ -6,11 +6,23 @@
         "mcp", "start"
       ]
     },
+    "context-mode": {
+      "command": "context-mode",
+      "args": []
+    },
     "context7": {
       "command": "npx",
       "args": [
         "-y",
         "@upstash/context7-mcp"
+      ]
+    },
+    "linear": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.linear.app/mcp"
       ]
     },
     "screencap": {

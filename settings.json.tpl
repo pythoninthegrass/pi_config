@@ -5,11 +5,16 @@
   "defaultThinkingLevel": "off",
   "enableInstallTelemetry": false,
   "compaction": {
-    "enabled": true
+    "enabled": true,
+    "reserveTokens": 8192
   },
   "packages": [
     "git:github.com/pythoninthegrass/pi-omlx-picker@main",
-    "npm:pi-mcp-adapter"
+    "npm:pi-mcp-adapter",
+    "npm:context-mode"
+  ],
+  "extensions": [
+    "~/git/pi_config/extensions/plan-mode"
   ],
   "warnings": {
     "anthropicExtraUsage": false
