@@ -1,49 +1,27 @@
 # pi_config
 
-Configuration for [pi](https://pi.dev/docs/latest) and [omp](https://pi.dev/docs/latest) coding agents backed by a local [oMLX](https://github.com/jundot/omlx) inference server on Apple Silicon.
+Configuration for [pi](https://pi.dev/docs/latest) and [omp](https://pi.dev/docs/latest) coding agents backed by a local [oMLX](https://github.com/jundot/omlx) inference server on Apple Silicon, or koboldcpp on WSL.
 
-## Requirements
-
-- macOS on Apple Silicon (M-series) with 64+ GB RAM
-- [oMLX](https://github.com/jundot/omlx) running locally on port 8000
-- [mise](https://mise.jdx.dev) for runtime management (`brew install mise`)
-- `OMLX_BASE_URL`, `OMLX_API_KEY`, and `OMLX_DEFAULT_MODEL` set in `~/git/pi_config/.env`
-- `envsubst` available (ships with `gettext`: `brew install gettext`)
-- `~/git/bashrc/.bash_aliases` sourced in your shell (renders templates at startup)
+See **[docs/setup.md](docs/setup.md)** for full installation instructions on macOS and Ubuntu/WSL.
 
 ## Quickstart
 
 ```bash
-# 1. Clone this repo
-git clone git@github.com:pythoninthegrass/pi_config.git
-cd pi_config
-
-# 2. Create .env with your oMLX credentials and per-machine model
-cat > .env <<EOF
-OMLX_BASE_URL=http://127.0.0.1:8000
-OMLX_API_KEY=<your-api-key>
-OMLX_DEFAULT_MODEL=<model-id>
-EOF
-
-# 3. Install pi and omp
-npm install -g @mariozechner/pi-coding-agent
-mise use -g github:can1357/oh-my-pi@14.7.0
-
-# 4. Symlink configs
-mkdir -p ~/.omp/agent ~/.pi/agent
-ln -sf $(pwd)/models.yml ~/.omp/agent/models.yml
-ln -sf $(pwd)/config.yml ~/.omp/agent/config.yml
-ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
+# 1. Clone and symlink
+git clone https://github.com/pythoninthegrass/pi_config.git ~/git/pi_config
+cd ~/git/pi_config
+mkdir -p ~/.pi/agent
 ln -sf $(pwd)/models.json ~/.pi/agent/models.json
+ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
 ln -sf $(pwd)/.mcp.json ~/.pi/agent/.mcp.json
+ln -sf $(pwd)/themes ~/.pi/agent/themes
 ln -sf $(pwd)/extensions ~/.pi/agent/extensions
 
-# 5. Add the .bash_aliases block (renders templates and exports env vars at shell startup)
-#    See docs/omlx-agentic-coding.md for the exact block to add
+# 2. Configure .env (see .env.example)
+cp .env.example .env && $EDITOR .env
 
-# 6. Open a new shell, then launch
-pi      # pi coding agent
-omp     # oh-my-pi
+# 3. Render settings and launch
+source ~/git/bashrc/.bashrc && pi
 ```
 
 ## Testing
