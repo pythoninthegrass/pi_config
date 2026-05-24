@@ -113,6 +113,28 @@
           }
         },
         {
+          "id": "qwen3-coder-next-planner",
+          "name": "Qwen3-Coder-Next 80B-A3B planner (Q6_K_L, think)",
+          "reasoning": true,
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 131072,
+          "maxTokens": 32768,
+          "baseUrl": "http://127.0.0.1:61515/v1",
+          "compat": {
+            "requiresToolResultName": true,
+            "requiresAssistantAfterToolResult": true,
+            "thinkingFormat": "qwen-chat-template"
+          }
+        },
+        {
           "id": "qwen3.6-27b-builder",
           "name": "Qwen3.6-27B builder (Q5_K_M, no-think)",
           "reasoning": false,
@@ -149,6 +171,49 @@
           "contextWindow": 131072,
           "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61516/v1",
+          "compat": {
+            "requiresToolResultName": true,
+            "requiresAssistantAfterToolResult": true,
+            "thinkingFormat": "qwen-chat-template"
+          }
+        },
+        {
+          "id": "gemma-4-26b-a4b-builder",
+          "name": "Gemma 4 26B-A4B builder (Q6_K_L, no-think)",
+          "reasoning": false,
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 131072,
+          "maxTokens": 32768,
+          "baseUrl": "http://127.0.0.1:61516/v1",
+          "compat": {
+            "requiresToolResultName": true,
+            "requiresAssistantAfterToolResult": true
+          }
+        },
+        {
+          "id": "gemma-4-26b-a4b-planner",
+          "name": "Gemma 4 26B-A4B planner (Q6_K_L, think)",
+          "reasoning": true,
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 131072,
+          "maxTokens": 32768,
+          "baseUrl": "http://127.0.0.1:61517/v1",
           "compat": {
             "requiresToolResultName": true,
             "requiresAssistantAfterToolResult": true,
