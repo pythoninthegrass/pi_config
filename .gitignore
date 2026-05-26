@@ -1,5 +1,6 @@
 # ETC
 .env
+.mcp.json
 *.yml
 CLAUDE.md
 settings.json
@@ -60,3 +61,4 @@ tmbootpicker.efi
 !**/.gitkeep
 !AGENTS.md
 !settings.json.tpl
+!.mcp.json.tpl

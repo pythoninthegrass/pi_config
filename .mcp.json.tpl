@@ -17,6 +17,13 @@
         "@upstash/context7-mcp"
       ]
     },
+    "lightpanda": {
+      "type": "sse",
+      "url": "https://uswest.cloud.lightpanda.io/mcp/sse",
+      "headers": {
+        "Authorization": "Bearer ${LIGHTPANDA_TOKEN}"
+      }
+    },
     "linear": {
       "command": "npx",
       "args": [
