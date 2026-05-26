@@ -219,6 +219,27 @@
             "requiresAssistantAfterToolResult": true,
             "thinkingFormat": "qwen-chat-template"
           }
+        },
+        {
+          "id": "qwen3.6-27b-scout",
+          "name": "Qwen3.6-27B scout (Q5_K_M, no-think)",
+          "reasoning": false,
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 32768,
+          "maxTokens": 2048,
+          "baseUrl": "http://127.0.0.1:61518/v1",
+          "compat": {
+            "requiresToolResultName": true,
+            "requiresAssistantAfterToolResult": true
+          }
         }
       ]
     },
