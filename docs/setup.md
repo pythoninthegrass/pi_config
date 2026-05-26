@@ -107,7 +107,7 @@ Open the printed URL in a browser and complete the OAuth flow. Token is cached u
 
 To use koboldcpp models from Mac, add SSH port forwards to `~/.ssh/config` under `Host wsl`:
 
-```
+```sshconfig
     LocalForward 61515 127.0.0.1:61515
     LocalForward 61516 127.0.0.1:61516
 ```
@@ -116,6 +116,12 @@ Or open a background tunnel:
 
 ```bash
 ssh -fN -L 61515:localhost:61515 -L 61516:localhost:61516 wsl
+```
+
+**gnhf prerequisite:** the tunnel must be active before running `gnhf`. Install gnhf if not present:
+
+```bash
+npm install -g gnhf
 ```
 
 Then switch to koboldcpp models inside pi with `ctrl+l`. To make koboldcpp the persistent default, update `PI_DEFAULT_PROVIDER` and `PI_DEFAULT_MODEL` in `.env` and re-source. Do not comment out `.env` entirely — unset vars leave literal `${PI_DEFAULT_PROVIDER}` in the rendered `settings.json`.
