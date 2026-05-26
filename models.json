@@ -81,7 +81,7 @@
       ]
     },
     "koboldcpp": {
-      "baseUrl": "http://127.0.0.1:61519/v1",
+      "baseUrl": "http://127.0.0.1:61515/v1",
       "api": "openai-completions",
       "apiKey": "kobold",
       "compat": {
@@ -106,7 +106,7 @@
           },
           "contextWindow": 131072,
           "maxTokens": 32768,
-          "baseUrl": "http://127.0.0.1:61519/v1",
+          "baseUrl": "http://127.0.0.1:61515/v1",
           "compat": {
             "requiresToolResultName": true,
             "requiresAssistantAfterToolResult": true
@@ -127,7 +127,7 @@
           },
           "contextWindow": 131072,
           "maxTokens": 32768,
-          "baseUrl": "http://127.0.0.1:61519/v1",
+          "baseUrl": "http://127.0.0.1:61515/v1",
           "compat": {
             "requiresToolResultName": true,
             "requiresAssistantAfterToolResult": true,
@@ -149,7 +149,7 @@
           },
           "contextWindow": 131072,
           "maxTokens": 32768,
-          "baseUrl": "http://127.0.0.1:61519/v1",
+          "baseUrl": "http://127.0.0.1:61515/v1",
           "compat": {
             "requiresToolResultName": true,
             "requiresAssistantAfterToolResult": true
