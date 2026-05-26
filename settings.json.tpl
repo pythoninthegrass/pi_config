@@ -9,7 +9,7 @@
     "reserveTokens": 8192
   },
   "packages": [
-    "git:github.com/pythoninthegrass/pi-minimal-subagent@master",
+    "npm:pi-subagents",
     "git:github.com/pythoninthegrass/pi-omlx-picker@main",
     "npm:pi-mcp-adapter",
     "npm:context-mode"
