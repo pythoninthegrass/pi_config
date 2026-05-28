@@ -55,6 +55,10 @@
         "ide",
         "--project-from-cwd"
       ]
+    },
+    "tinyfish": {
+      "type": "http",
+      "url": "https://agent.tinyfish.ai/mcp"
     }
   }
 }
