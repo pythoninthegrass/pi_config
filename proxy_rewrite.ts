@@ -43,6 +43,15 @@ function toToolCalls(s: string): any[] {
   }));
 }
 
+// Coerce an unquoted scalar token to bool/null/number, else keep the string.
+function coerceScalar(raw: string): any {
+  if (raw === "True" || raw === "true") return true;
+  if (raw === "False" || raw === "false") return false;
+  if (raw === "None" || raw === "null") return null;
+  if (raw !== "" && !isNaN(Number(raw))) return Number(raw);
+  return raw;
+}
+
 // Parse Python-style kwargs: key="val", key=123, key=True
 function parseKwargs(argsStr: string): Record<string, any> {
   const result: Record<string, any> = {};
@@ -100,21 +109,60 @@ function parseKwargs(argsStr: string): Record<string, any> {
       const start = pos;
       while (pos < argsStr.length && argsStr[pos] !== "," && argsStr[pos] !== ")") pos++;
       const raw = argsStr.slice(start, pos).trim();
-      if (raw === "True" || raw === "true") result[key] = true;
-      else if (raw === "False" || raw === "false") result[key] = false;
-      else if (raw === "None" || raw === "null") result[key] = null;
-      else if (raw !== "" && !isNaN(Number(raw))) result[key] = Number(raw);
-      else result[key] = raw;
+      result[key] = coerceScalar(raw);
     }
   }
 
   return result;
 }
 
+// Extract tool calls from XML-style function syntax that koboldcpp failed to
+// extract, e.g. the Qwen/Hermes form:
+//   <function=funcname>
+//     <key>value</key>                 (param name as tag), or
+//     <parameter=key>value</parameter>  (explicit parameter tag)
+//   </function>
+// Works with or without an enclosing <tool_call> wrapper, and tolerates a
+// missing closing </function> (truncated output). Returns null if none found.
+export function extractXmlFunctionCalls(
+  content: string
+): Array<{ name: string; arguments: string }> | null {
+  const results: Array<{ name: string; arguments: string }> = [];
+  const fnRegex = /<function=([^>\s]+)>([\s\S]*?)(?:<\/function>|$)/g;
+  let match;
+  while ((match = fnRegex.exec(content)) !== null) {
+    const name = match[1].trim();
+    const body = match[2];
+    const args: Record<string, any> = {};
+
+    // Prefer explicit <parameter=key>value</parameter> tags.
+    const paramRegex = /<parameter=([^>\s]+)>([\s\S]*?)<\/parameter>/g;
+    let pm;
+    let foundExplicit = false;
+    while ((pm = paramRegex.exec(body)) !== null) {
+      foundExplicit = true;
+      args[pm[1].trim()] = coerceScalar(pm[2].trim());
+    }
+
+    // Otherwise treat each child <key>value</key> as a parameter.
+    if (!foundExplicit) {
+      const kvRegex = /<([\w.\-]+)>([\s\S]*?)<\/\1>/g;
+      let km;
+      while ((km = kvRegex.exec(body)) !== null) {
+        args[km[1].trim()] = coerceScalar(km[2].trim());
+      }
+    }
+
+    results.push({ name, arguments: JSON.stringify(args) });
+  }
+
+  return results.length > 0 ? results : null;
+}
+
 // Extract tool calls from content that contains <tool_call>funcname(args)</tool_call>
 // or <tool_call>{"name":...}</tool_call> that koboldcpp failed to extract.
 // Returns null if no <tool_call> blocks found.
-function extractTaggedToolCalls(
+export function extractTaggedToolCalls(
   content: string
 ): Array<{ name: string; arguments: string }> | null {
   const results: Array<{ name: string; arguments: string }> = [];
@@ -148,6 +196,13 @@ function extractTaggedToolCalls(
       const name = pyMatch[1];
       const kwargs = parseKwargs(pyMatch[2]);
       results.push({ name, arguments: JSON.stringify(kwargs) });
+      continue;
+    }
+
+    // Case C: XML <function=name>...</function> syntax inside the wrapper
+    const xml = extractXmlFunctionCalls(inner);
+    if (xml) {
+      results.push(...xml);
       continue;
     }
   }
@@ -210,7 +265,7 @@ function rewriteStreamAsToolCalls(
 
 // Inspect a fully-buffered SSE response and return the SSE text to forward to
 // the client: either the original stream or a tool_calls rewrite of it.
-function rewriteBufferedSse(raw: string): string {
+export function rewriteBufferedSse(raw: string): string {
   let contentParts: string[] = [];
   let finalFinishReason: string | null = null;
   let requestId = `chatcmpl-proxy-${Date.now()}`;
@@ -264,10 +319,27 @@ function rewriteBufferedSse(raw: string): string {
     }
   }
 
+  // Case 3: bare <function=name> XML with no <tool_call> wrapper
+  if (shouldCheck) {
+    const xml = extractXmlFunctionCalls(fullContent);
+    if (xml) {
+      console.log(
+        `[proxy] rewriting <function=> XML → tool_calls for ${requestId}: ${xml.map((t) => t.name).join(", ")}`
+      );
+      const tcs = xml.map((t) => ({
+        id: `call_${Math.random().toString(36).slice(2, 10)}`,
+        type: "function",
+        function: { name: t.name, arguments: t.arguments },
+      }));
+      return rewriteStreamAsToolCalls(tcs, modelId, requestId);
+    }
+  }
+
   // Pass through unchanged
   return raw;
 }
 
+if (import.meta.main) {
 Bun.serve({
   port: LISTEN,
   hostname: "127.0.0.1",
@@ -355,3 +427,4 @@ Bun.serve({
 });
 
 console.log(`Proxy listening on http://127.0.0.1:${LISTEN} → ${TARGET}`);
+}
