@@ -17,6 +17,7 @@
     "npm:context-mode",
     "npm:pi-hermes-memory",
     "npm:pi-mcp-adapter",
+    "npm:pi-lens",
     "npm:pi-tinyfish"
   ],
   "extensions": [
