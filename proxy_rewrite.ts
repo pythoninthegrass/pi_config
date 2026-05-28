@@ -4,6 +4,14 @@
 //   2. Model outputs <tool_call>funcname(kwargs)</tool_call> Python-style syntax
 const TARGET = "http://127.0.0.1:61515";
 const LISTEN = 61519;
+// Upstream generation can take minutes; cap the total fetch so a wedged
+// koboldcpp doesn't hang forever. Override via PROXY_UPSTREAM_TIMEOUT_MS.
+const UPSTREAM_TIMEOUT_MS = Number(
+  process.env.PROXY_UPSTREAM_TIMEOUT_MS ?? 600_000
+);
+// SSE heartbeat interval; must stay under Bun.serve idleTimeout so the client
+// connection never idles out while we buffer the upstream stream.
+const HEARTBEAT_MS = 5_000;
 
 function isJsonArrayToolCalls(s: string): boolean {
   const t = s.trim();
@@ -200,9 +208,72 @@ function rewriteStreamAsToolCalls(
   return lines.join("");
 }
 
+// Inspect a fully-buffered SSE response and return the SSE text to forward to
+// the client: either the original stream or a tool_calls rewrite of it.
+function rewriteBufferedSse(raw: string): string {
+  let contentParts: string[] = [];
+  let finalFinishReason: string | null = null;
+  let requestId = `chatcmpl-proxy-${Date.now()}`;
+  let modelId = "koboldcpp";
+  for (const line of raw.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("data: ") || trimmed === "data: [DONE]") continue;
+    try {
+      const j = JSON.parse(trimmed.slice(6));
+      const ch = j.choices?.[0];
+      if (!ch) continue;
+      if (ch.finish_reason) finalFinishReason = ch.finish_reason;
+      if (j.id) requestId = j.id;
+      if (j.model) modelId = j.model;
+      const content = ch.delta?.content;
+      if (typeof content === "string") contentParts.push(content);
+    } catch {}
+  }
+
+  const fullContent = contentParts.join("");
+  console.log(
+    `[proxy] finish=${finalFinishReason} contentLen=${fullContent.length} starts=${fullContent.trimStart().slice(0, 20).replace(/\n/g, "\\n")}`
+  );
+
+  const shouldCheck =
+    finalFinishReason === "stop" || finalFinishReason === "tool_calls";
+
+  // Case 1: JSON array tool calls
+  if (shouldCheck && isJsonArrayToolCalls(fullContent)) {
+    console.log(`[proxy] rewriting JSON-array → tool_calls for ${requestId}`);
+    const tcs = toToolCalls(fullContent).map((tc) => ({
+      ...tc,
+      id: tc.id ?? `call_${Math.random().toString(36).slice(2, 10)}`,
+    }));
+    return rewriteStreamAsToolCalls(tcs, modelId, requestId);
+  }
+
+  // Case 2: <tool_call> tags with Python-style or JSON content
+  if (shouldCheck) {
+    const tagged = extractTaggedToolCalls(fullContent);
+    if (tagged) {
+      console.log(
+        `[proxy] rewriting <tool_call> tags → tool_calls for ${requestId}: ${tagged.map((t) => t.name).join(", ")}`
+      );
+      const tcs = tagged.map((t) => ({
+        id: `call_${Math.random().toString(36).slice(2, 10)}`,
+        type: "function",
+        function: { name: t.name, arguments: t.arguments },
+      }));
+      return rewriteStreamAsToolCalls(tcs, modelId, requestId);
+    }
+  }
+
+  // Pass through unchanged
+  return raw;
+}
+
 Bun.serve({
   port: LISTEN,
   hostname: "127.0.0.1",
+  // Heartbeats keep the connection alive; this is a generous ceiling for a
+  // wedged generation, backing up the per-request upstream timeout.
+  idleTimeout: 255,
   async fetch(req) {
     const url = new URL(req.url);
     const targetUrl = TARGET + url.pathname + url.search;
@@ -214,8 +285,6 @@ Bun.serve({
 
     const bodyText = await req.text();
     let isStream = false;
-    let requestId = `chatcmpl-proxy-${Date.now()}`;
-    let modelId = "koboldcpp";
     try {
       const j = JSON.parse(bodyText);
       isStream = j.stream === true;
@@ -225,6 +294,7 @@ Bun.serve({
       method,
       headers,
       body: bodyText || undefined,
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
 
     if (!isStream || !upstream.body) {
@@ -234,85 +304,47 @@ Bun.serve({
       });
     }
 
-    // Buffer SSE stream
-    const chunks: string[] = [];
-    const reader = upstream.body.getReader();
-    const decoder = new TextDecoder();
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(decoder.decode(value, { stream: true }));
-    }
-    const raw = chunks.join("");
+    // We must buffer the whole upstream stream to detect/rewrite malformed tool
+    // calls, but the client connection would idle out while we wait. Respond
+    // immediately with a stream and emit SSE comment heartbeats until the
+    // upstream finishes, then forward the (possibly rewritten) events.
+    const upstreamBody = upstream.body;
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        const enc = new TextEncoder();
+        controller.enqueue(enc.encode(": connected\n\n"));
+        const heartbeat = setInterval(() => {
+          try {
+            controller.enqueue(enc.encode(": keepalive\n\n"));
+          } catch {}
+        }, HEARTBEAT_MS);
 
-    let contentParts: string[] = [];
-    let finalFinishReason: string | null = null;
-    for (const line of raw.split("\n")) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data: ") || trimmed === "data: [DONE]") continue;
-      try {
-        const j = JSON.parse(trimmed.slice(6));
-        const ch = j.choices?.[0];
-        if (!ch) continue;
-        if (ch.finish_reason) finalFinishReason = ch.finish_reason;
-        if (j.id) requestId = j.id;
-        if (j.model) modelId = j.model;
-        const content = ch.delta?.content;
-        if (typeof content === "string") contentParts.push(content);
-      } catch {}
-    }
+        try {
+          const chunks: string[] = [];
+          const reader = upstreamBody.getReader();
+          const decoder = new TextDecoder();
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(decoder.decode(value, { stream: true }));
+          }
+          const raw = chunks.join("");
+          clearInterval(heartbeat);
+          controller.enqueue(enc.encode(rewriteBufferedSse(raw)));
+        } catch (err) {
+          clearInterval(heartbeat);
+          console.log(`[proxy] upstream error: ${err}`);
+          controller.enqueue(
+            enc.encode(`data: [DONE]\n\n`)
+          );
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
-    const fullContent = contentParts.join("");
-    console.log(
-      `[proxy] finish=${finalFinishReason} contentLen=${fullContent.length} starts=${fullContent.trimStart().slice(0, 20).replace(/\n/g, "\\n")}`
-    );
-
-    const shouldCheck =
-      finalFinishReason === "stop" || finalFinishReason === "tool_calls";
-
-    // Case 1: JSON array tool calls
-    if (shouldCheck && isJsonArrayToolCalls(fullContent)) {
-      console.log(`[proxy] rewriting JSON-array → tool_calls for ${requestId}`);
-      const tcs = toToolCalls(fullContent).map((tc) => ({
-        ...tc,
-        id: tc.id ?? `call_${Math.random().toString(36).slice(2, 10)}`,
-      }));
-      return new Response(rewriteStreamAsToolCalls(tcs, modelId, requestId), {
-        status: 200,
-        headers: {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-        },
-      });
-    }
-
-    // Case 2: <tool_call> tags with Python-style or JSON content
-    if (shouldCheck) {
-      const tagged = extractTaggedToolCalls(fullContent);
-      if (tagged) {
-        console.log(
-          `[proxy] rewriting <tool_call> tags → tool_calls for ${requestId}: ${tagged.map((t) => t.name).join(", ")}`
-        );
-        const tcs = tagged.map((t) => ({
-          id: `call_${Math.random().toString(36).slice(2, 10)}`,
-          type: "function",
-          function: { name: t.name, arguments: t.arguments },
-        }));
-        return new Response(rewriteStreamAsToolCalls(tcs, modelId, requestId), {
-          status: 200,
-          headers: {
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache",
-            Connection: "keep-alive",
-          },
-        });
-      }
-    }
-
-    // Pass through unchanged
-    return new Response(raw, {
-      status: upstream.status,
+    return new Response(stream, {
+      status: 200,
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
