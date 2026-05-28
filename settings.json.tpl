@@ -11,8 +11,12 @@
   "packages": [
     "git:github.com/pythoninthegrass/pi-subagents@main",
     "git:github.com/pythoninthegrass/pi-omlx-picker@main",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:context-mode",
+    "npm:pi-hermes-memory",
     "npm:pi-mcp-adapter",
-    "npm:context-mode"
+    "npm:pi-tinyfish"
   ],
   "extensions": [
     "~/git/pi_config/extensions/plan-mode"
