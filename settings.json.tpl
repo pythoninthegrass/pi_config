@@ -3,6 +3,7 @@
   "defaultProvider": "${PI_DEFAULT_PROVIDER}",
   "defaultModel": "${PI_DEFAULT_MODEL}",
   "defaultThinkingLevel": "off",
+  "collapseChangelog": true,
   "enableInstallTelemetry": false,
   "compaction": {
     "enabled": true,
