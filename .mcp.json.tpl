@@ -3,12 +3,12 @@
     "backlog": {
       "command": "backlog",
       "args": [
-        "mcp", "start"
+        "mcp",
+        "start"
       ]
     },
     "context-mode": {
-      "command": "context-mode",
-      "args": []
+      "command": "context-mode"
     },
     "context7": {
       "command": "npx",
@@ -16,33 +16,6 @@
         "-y",
         "@upstash/context7-mcp"
       ]
-    },
-    "lightpanda": {
-      "type": "sse",
-      "url": "https://uswest.cloud.lightpanda.io/mcp/sse",
-      "headers": {
-        "Authorization": "Bearer ${LIGHTPANDA_TOKEN}"
-      }
-    },
-    "linear": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://mcp.linear.app/mcp"
-      ]
-    },
-    "screencap": {
-      "command": "$HOME/.local/bin/uv",
-      "args": [
-        "--directory",
-        "${SCREENCAP_DIR:-$HOME/git/screencap}",
-        "run",
-        "server.py"
-      ],
-      "env": {
-        "UV_PROJECT_ENVIRONMENT": "$HOME/git/screencap/.venv"
-      }
     },
     "serena": {
       "command": "uvx",
