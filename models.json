@@ -219,7 +219,20 @@
             "requiresAssistantAfterToolResult": true,
             "thinkingFormat": "qwen-chat-template"
           }
-        },
+        }
+      ]
+    },
+    "koboldcpp-explorer": {
+      "baseUrl": "http://127.0.0.1:61520/v1",
+      "api": "openai-completions",
+      "apiKey": "kobold",
+      "compat": {
+        "supportsUsageInStreaming": false,
+        "maxTokensField": "max_tokens",
+        "supportsDeveloperRole": false,
+        "supportsReasoningEffort": false
+      },
+      "models": [
         {
           "id": "qwen3-8b-explorer",
           "name": "Qwen3-8B explorer (Q6_K_L, no-think)",
@@ -235,7 +248,6 @@
           },
           "contextWindow": 32768,
           "maxTokens": 4096,
-          "baseUrl": "http://127.0.0.1:61520/v1",
           "compat": {
             "requiresToolResultName": true,
             "requiresAssistantAfterToolResult": true
