@@ -221,8 +221,8 @@
           }
         },
         {
-          "id": "qwen3.6-27b-scout",
-          "name": "Qwen3.6-27B scout (Q5_K_M, no-think)",
+          "id": "qwen3-8b-explorer",
+          "name": "Qwen3-8B explorer (Q6_K_L, no-think)",
           "reasoning": false,
           "input": [
             "text"
@@ -234,8 +234,8 @@
             "cacheWrite": 0
           },
           "contextWindow": 32768,
-          "maxTokens": 2048,
-          "baseUrl": "http://127.0.0.1:61518/v1",
+          "maxTokens": 4096,
+          "baseUrl": "http://127.0.0.1:61520/v1",
           "compat": {
             "requiresToolResultName": true,
             "requiresAssistantAfterToolResult": true
