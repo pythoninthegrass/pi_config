@@ -222,39 +222,6 @@
         }
       ]
     },
-    "koboldcpp-explorer": {
-      "baseUrl": "http://127.0.0.1:61520/v1",
-      "api": "openai-completions",
-      "apiKey": "kobold",
-      "compat": {
-        "supportsUsageInStreaming": false,
-        "maxTokensField": "max_tokens",
-        "supportsDeveloperRole": false,
-        "supportsReasoningEffort": false
-      },
-      "models": [
-        {
-          "id": "qwen3-8b-explorer",
-          "name": "Qwen3-8B explorer (Q6_K_L, no-think)",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "contextWindow": 32768,
-          "maxTokens": 4096,
-          "compat": {
-            "requiresToolResultName": true,
-            "requiresAssistantAfterToolResult": true
-          }
-        }
-      ]
-    },
     "omlx-thinking": {
       "baseUrl": "http://127.0.0.1:8000",
       "api": "anthropic-messages",
