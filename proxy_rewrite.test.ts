@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
 import { extractTaggedToolCalls, rewriteBufferedSse } from "./proxy_rewrite";
 
-// Builds a minimal buffered SSE response carrying `content` and a stop finish.
-function sse(content: string): string {
+// Builds a minimal buffered SSE response carrying `content` and a finish reason.
+function sse(content: string, finishReason = "stop"): string {
   const delta = JSON.stringify({
     id: "chatcmpl-test",
     model: "qwen3-coder-next-builder",
@@ -11,7 +11,7 @@ function sse(content: string): string {
   const done = JSON.stringify({
     id: "chatcmpl-test",
     model: "qwen3-coder-next-builder",
-    choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
+    choices: [{ index: 0, delta: {}, finish_reason: finishReason }],
   });
   return `data: ${delta}\n\ndata: ${done}\n\ndata: [DONE]\n\n`;
 }
@@ -80,4 +80,17 @@ test("explicit <parameter=key> form is parsed", () => {
 test("non-tool prose passes through untouched", () => {
   const prose = sse("NVDA is trading around $X today.");
   expect(rewriteBufferedSse(prose)).toBe(prose);
+});
+
+// A generation cut off at the context ceiling (finish_reason "length") can leave
+// a half-written tool call. It must NOT be rewritten into an executable
+// tool_calls delta — a truncated/partial action is worse than a clean stop.
+test("truncated tool call (finish=length) is not fabricated into a tool call", () => {
+  const truncated = sse(
+    "<tool_call>\n<function=edit_file>\n<path>/etc/hos",
+    "length"
+  );
+  const out = rewriteBufferedSse(truncated);
+  expect(out).toBe(truncated);
+  expect(toolCallsFrom(out)).toBeNull();
 });

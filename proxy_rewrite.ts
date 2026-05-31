@@ -290,6 +290,23 @@ export function rewriteBufferedSse(raw: string): string {
     `[proxy] finish=${finalFinishReason} contentLen=${fullContent.length} starts=${fullContent.trimStart().slice(0, 20).replace(/\n/g, "\\n")}`
   );
 
+  // A "length" finish means koboldcpp hit the KV/context ceiling mid-generation.
+  // If the cut-off content looks like a tool call, it is truncated and
+  // unrecoverable — we deliberately do NOT rewrite it (emitting a half-parsed
+  // tool call would run a malformed/partial action). Surface it loudly instead:
+  // a silent stop in the agent loop almost always traces back to one of these.
+  if (finalFinishReason === "length") {
+    const looksLikeToolCall =
+      /<tool_call|<function=/.test(fullContent) ||
+      fullContent.trimStart().startsWith("[{");
+    console.warn(
+      `[proxy] WARNING truncated generation (finish=length) for ${requestId}` +
+        (looksLikeToolCall
+          ? " — content contains a partial tool call that cannot be recovered; likely context-budget exhaustion (raise compaction headroom or lower maxTokens)"
+          : "")
+    );
+  }
+
   const shouldCheck =
     finalFinishReason === "stop" || finalFinishReason === "tool_calls";
 
