@@ -105,7 +105,7 @@
             "cacheWrite": 0
           },
           "contextWindow": 131072,
-          "maxTokens": 32768,
+          "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61519/v1",
           "compat": {
             "requiresToolResultName": true,
@@ -126,7 +126,7 @@
             "cacheWrite": 0
           },
           "contextWindow": 131072,
-          "maxTokens": 32768,
+          "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61519/v1",
           "compat": {
             "requiresToolResultName": true,
@@ -148,7 +148,7 @@
             "cacheWrite": 0
           },
           "contextWindow": 131072,
-          "maxTokens": 32768,
+          "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61519/v1",
           "compat": {
             "requiresToolResultName": true,
@@ -191,7 +191,7 @@
             "cacheWrite": 0
           },
           "contextWindow": 131072,
-          "maxTokens": 32768,
+          "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61516/v1",
           "compat": {
             "requiresToolResultName": true,
@@ -212,7 +212,7 @@
             "cacheWrite": 0
           },
           "contextWindow": 131072,
-          "maxTokens": 32768,
+          "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61517/v1",
           "compat": {
             "requiresToolResultName": true,
