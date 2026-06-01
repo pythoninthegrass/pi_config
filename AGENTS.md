@@ -30,10 +30,10 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 
 - `models.yml.tpl` interpolates `OMLX_BASE_URL` and `OMLX_API_KEY`
 - `config.yml.tpl` has no variable substitutions (static template)
-- `settings.json.tpl` interpolates `OMLX_DEFAULT_MODEL`
+- `settings.json.tpl` interpolates `PI_DEFAULT_PROVIDER` and `PI_DEFAULT_MODEL`; it also carries tuned compaction values (`reserveTokens`, `keepRecentTokens`) — change those here, not in the rendered file
 - `.mcp.json.tpl` interpolates `$LIGHTPANDA_TOKEN` only; other `${VAR}` placeholders (e.g. `TINYFISH_API_KEY`, `SCREENCAP_DIR`) are left literal for pi-mcp-adapter to resolve at runtime
 
-`.yml` files, `settings.json`, and `.mcp.json` are gitignored — only the `.tpl` sources are tracked. Edit the `.tpl` files, not the rendered output.
+`.yml` files, `settings.json`, and `.mcp.json` are gitignored — only the `.tpl` sources are tracked. Edit the `.tpl` files, not the rendered output: edits to a rendered file are silently overwritten at the next shell startup (and never tracked by git).
 
 `models.json` (pi) uses `apiKey: "OMLX_API_KEY"` — pi resolves env var names at runtime, so no template rendering is needed.
 
