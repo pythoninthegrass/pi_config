@@ -7,7 +7,8 @@
   "enableInstallTelemetry": false,
   "compaction": {
     "enabled": true,
-    "reserveTokens": 8192
+    "reserveTokens": 8192,
+    "keepRecentTokens": 20000
   },
   "packages": [
     "git:github.com/pythoninthegrass/pi-subagents@main",
