@@ -89,3 +89,61 @@ Always use Context7 MCP when I need library/API documentation, code generation, 
 - `extensions/rtk-rewrite.ts` requires `rtk` (>= 0.38) on PATH. If rtk is absent the hook fails open — bash still runs, just unrewritten.
 - Add `rtk-ai/rtk` to the Context7 libraries list if working with the rtk extension.
 - See `docs/extensions.md` for extension architecture, rtk-rewrite internals, and how to write new extensions.
+
+## Harbor Evaluation
+
+Install (pin `supabase<3` — 3.x alpha drops the `_async` subpackage harbor requires):
+
+```bash
+uv tool install harbor --with 'supabase<3'
+```
+
+Run pi against a dataset with a local koboldcpp model:
+
+```bash
+harbor run \
+  -a pi \
+  -m openai/<model-label> \
+  --ae OPENAI_API_KEY=dummy \
+  --ae OPENAI_BASE_URL=http://host.docker.internal:<port>/v1 \
+  -d livecodebench/livecodebench \
+  -n 1
+```
+
+On WSL, if `host.docker.internal` doesn't resolve inside the harbor container, substitute `172.17.0.1` (default Docker bridge gateway).
+
+### Model → port map
+
+All models live in `~/git/wsl_setup/docker/`. Only one stack occupying port 61515 can run at a time.
+
+| Model label | Port | Thinking | Compose dir |
+|---|---|---|---|
+| `qwen3-coder-next` | 61519 | off (proxy rewrite) | `qwen3-coder-next` |
+| `qwen3-coder-next-direct` | 61515 | off | `qwen3-coder-next` |
+| `scout` | 61518 | off | `qwen3-coder-next` |
+| `qwen3.6-27b-builder` | 61515 | off | `qwen3.6-27b` |
+| `qwen3.6-27b-planner` | 61514 | on (server-side) | `qwen3.6-27b` |
+| `qwen3.6-35b-a3b-builder` | 61517 | off | `qwen3.6-35b-a3b` |
+| `qwen3.6-35b-a3b-planner` | 61516 | on (server-side) | `qwen3.6-35b-a3b` |
+
+### Examples
+
+```bash
+# qwen3-coder-next (no-think, proxy)
+harbor run -a pi -m openai/qwen3-coder-next \
+  --ae OPENAI_API_KEY=dummy \
+  --ae OPENAI_BASE_URL=http://host.docker.internal:61519/v1 \
+  -d livecodebench/livecodebench -n 1
+
+# qwen3.6-35b-a3b builder (no-think)
+harbor run -a pi -m openai/qwen3.6-35b-a3b-builder \
+  --ae OPENAI_API_KEY=dummy \
+  --ae OPENAI_BASE_URL=http://host.docker.internal:61517/v1 \
+  -d livecodebench/livecodebench -n 1
+
+# qwen3.6-35b-a3b planner (thinking enabled at server)
+harbor run -a pi -m openai/qwen3.6-35b-a3b-planner \
+  --ae OPENAI_API_KEY=dummy \
+  --ae OPENAI_BASE_URL=http://host.docker.internal:61516/v1 \
+  -d livecodebench/livecodebench -n 1
+```
