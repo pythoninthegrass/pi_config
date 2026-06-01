@@ -4,7 +4,7 @@
 # Verifies the full chain pi depends on:
 #   1. proxy (61519) reachable and a model is served
 #   2. a plain completion returns tokens (catches the "empty assistant stop")
-#   3. tool-calling works end-to-end via streaming (exercises proxy_rewrite.ts,
+#   3. tool-calling works end-to-end via streaming (exercises the rewrite proxy,
 #      which only rewrites malformed tool calls on streamed responses)
 #
 # Run on the host where koboldcpp is local (WSL), or anywhere that can reach the
