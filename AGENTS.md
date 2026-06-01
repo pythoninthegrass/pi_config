@@ -35,7 +35,7 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 
 `.yml` files, `settings.json`, and `.mcp.json` are gitignored — only the `.tpl` sources are tracked. Edit the `.tpl` files, not the rendered output: edits to a rendered file are silently overwritten at the next shell startup (and never tracked by git).
 
-`models.json` (pi) uses `apiKey: "OMLX_API_KEY"` — pi resolves env var names at runtime, so no template rendering is needed.
+`models.json` (pi) is **not** rendered from a template — it is tracked and hand-maintained. Newer pi treats a bare `apiKey` string as a **literal** key; to resolve an env var, prefix it (`$OMLX_API_KEY`). Literal keys (koboldcpp's `kobold`) stay bare. pi rewrites bare env-var-style names to `$`-form on startup, so the `$`-form is committed to keep the working tree clean.
 
 ## Linting
 
@@ -75,9 +75,10 @@ Always use Context7 MCP when I need library/API documentation, code generation, 
 ## Key Constraints
 
 - `models.yml` / `config.yml` must not be committed (gitignored). Only edit their `.tpl` sources.
-- `models.json` uses env var names as `apiKey` values — do not substitute literal keys.
+- `models.json` `apiKey` values: `$`-prefixed for env-var resolution (`$OMLX_API_KEY`, `$LLAMACPP_API_KEY`), bare for literal keys (koboldcpp's `kobold`). Do not convert the `$`-form back to bare names — newer pi re-migrates them to `$`-form on startup, re-dirtying the tree.
 - **MCP**: pi core has no native MCP (see pi README "No MCP"); support comes from the `pi-mcp-adapter` package. It reads, in precedence order (shallow merge, later wins): `~/.config/mcp/mcp.json` → `~/.pi/agent/mcp.json` → `<cwd>/.mcp.json` → `<cwd>/.pi/mcp.json`. The legacy `~/.pi/agent/.mcp.json` (dotted) path is **not** read by the adapter. Symlink the rendered `.mcp.json` to `~/.config/mcp/mcp.json` so servers load globally (all repos), not only when launched from this repo.
 - **MCP merge is additive-only**: a per-repo `.mcp.json` / `.pi/mcp.json` can ADD or REPLACE (by same name) servers, but cannot REMOVE or disable a server defined in a global source — there is no `disabled`/`enabled` flag. To keep a server out of a repo, omit it from all global sources and opt in per-repo.
+- **pi binary location (WSL is the primary host; macOS is secondary)**: pi is installed through a mise-managed `node` runtime (`~/.local/share/mise/installs/node/<ver>/bin/pi`). In an interactive WSL shell mise puts `pi` on PATH (`which pi` resolves it). Over a non-interactive `ssh wsl …` mise is not activated, so `pi`, `mise`, and even `node` are all off PATH: `ssh wsl pi …` gives `command not found`, and calling pi's full path also fails (its shebang can't find `node`). The reliable automation form is `ssh wsl '~/.local/bin/mise exec -- pi …'` — full mise path, then `mise exec` to set up the node env.
 - The active inference backend must be running before launching either agent: `omlx` on `http://127.0.0.1:8000`, or `koboldcpp` on its configured ports (`models.json` lists `61516`–`61519`; `qwen3-coder-next-*` on `61519`).
 - Active default is set per machine via `PI_DEFAULT_PROVIDER` / `PI_DEFAULT_MODEL` in `.env`, rendered into `settings.json` at shell startup. Current defaults: `koboldcpp` + `qwen3-coder-next-builder` (80B-A3B, no-think), or `omlx` + `Qwen3.6-35B-A3B-bf16` (Studio, 128GB) / `Qwen3.6-35B-A3B-MLX-8bit` (MBP, 64GB). All model IDs are listed in `models.json` / `models.yml.tpl`.
 - **Model routing**: use `qwen3-coder-next-builder` (no-think) for greenfield and scoped edits; switch to `qwen3-coder-next-planner` (`reasoning: true`, `ctrl+l`) for non-trivial bugfixes and multi-file refactors that need a reasoning/investigation pass. Keep agentic turns short and watch `contextRatio` on long refactors — long turns on the 35B-A3B MoE can trip the "empty assistant stop twice" failure (mitigations in `docs/omlx-agentic-coding.md`: fall back to `Qwen3.6-27B-MLX-8bit`).
