@@ -104,7 +104,7 @@
             "cacheRead": 0,
             "cacheWrite": 0
           },
-          "contextWindow": 131072,
+          "contextWindow": 114688,
           "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61519/v1",
           "compat": {
@@ -125,7 +125,7 @@
             "cacheRead": 0,
             "cacheWrite": 0
           },
-          "contextWindow": 131072,
+          "contextWindow": 114688,
           "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61519/v1",
           "compat": {
@@ -147,7 +147,7 @@
             "cacheRead": 0,
             "cacheWrite": 0
           },
-          "contextWindow": 131072,
+          "contextWindow": 114688,
           "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61519/v1",
           "compat": {
@@ -168,7 +168,7 @@
             "cacheRead": 0,
             "cacheWrite": 0
           },
-          "contextWindow": 131072,
+          "contextWindow": 114688,
           "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61516/v1",
           "compat": {
@@ -190,7 +190,7 @@
             "cacheRead": 0,
             "cacheWrite": 0
           },
-          "contextWindow": 131072,
+          "contextWindow": 114688,
           "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61516/v1",
           "compat": {
@@ -211,7 +211,7 @@
             "cacheRead": 0,
             "cacheWrite": 0
           },
-          "contextWindow": 131072,
+          "contextWindow": 114688,
           "maxTokens": 8192,
           "baseUrl": "http://127.0.0.1:61517/v1",
           "compat": {
