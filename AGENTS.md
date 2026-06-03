@@ -37,6 +37,38 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 
 `models.json` (pi) is **not** rendered from a template — it is tracked and hand-maintained. Newer pi treats a bare `apiKey` string as a **literal** key; to resolve an env var, prefix it (`$OMLX_API_KEY`). Literal keys (koboldcpp's `kobold`) stay bare. pi rewrites bare env-var-style names to `$`-form on startup, so the `$`-form is committed to keep the working tree clean.
 
+## Compaction & Context Window
+
+pi auto-compacts when estimated input would exceed `contextWindow − reserveTokens`, summarising older turns and keeping the most recent `keepRecentTokens`. Three numbers govern this: the model's `contextWindow` (in `models.json`) and the `compaction.*` values (in `settings.json.tpl`).
+
+### pi defaults (from `earendil-works/pi` docs)
+
+| Setting | pi default | This repo | Why |
+|---|---|---|---|
+| `compaction.enabled` | `true` | `true` | — |
+| `compaction.reserveTokens` | `16384` | `16384` | response headroom subtracted from the window before compaction fires |
+| `compaction.keepRecentTokens` | `20000` | `20000` | recent tokens kept verbatim, not summarised |
+
+`reserveTokens` is the headroom pi leaves for the LLM response. Keep it **≥ the model's `maxTokens`** (8192 here) so a full generation always fits; the 16384 default is 2× that. A *lower* `reserveTokens` makes compaction fire **later** (closer to the ceiling) — counterproductive on koboldcpp, where pi's token estimate already undershoots the true count (see below). The repo previously ran `reserveTokens: 8192`; it was raised to the 16384 default for earlier, safer firing.
+
+### koboldcpp assumptions baked into `models.json` / the compose stack
+
+- **`contextWindow: 114688` is deliberately 16384 below koboldcpp's real `--contextsize 131072`.** pi's token estimate undershoots koboldcpp's true Qwen-tokenizer count by ~8k near the ceiling, so compaction must fire with margin or koboldcpp silently context-shifts (drops oldest turns) instead. **Do not raise to 131072** without re-measuring the estimate gap.
+- **`--smartcache 5`** (auto-enabled for this RNN/hybrid model) is both the KV-reuse mechanism *and* the silent context-shift net: a compaction miss is masked as a quiet quality drop, not an error. The `docker-compose.noshift.yml` override (in `wsl_setup`) swaps it for `--noshift` so an overflow surfaces loudly — use it for compaction testing only. Caveat: `--noshift` forces full-context reprocessing every turn on this recurrent arch (no KV reuse), i.e. heavy sustained GPU load.
+- **pi has a context-window floor.** It needs room for the system prompt + tool/MCP definitions (~15k baseline with this package set) **+ `reserveTokens` + `maxTokens`**. Setting `contextWindow` too low (≈28000 observed) makes pi exit immediately doing nothing — keep it ≥ ~40000 even for tests. The production builders use 114688.
+
+## Tool Calling & a Known Livelock
+
+**Flow (verified against `earendil-works/pi` + `lostruins/koboldcpp` docs):** pi emits each tool result as a `toolResult` message (`toolCallId` / `toolName` / `content`), translated to an OpenAI `role: tool` message over the `openai-completions` API. koboldcpp's **`--jinja_tools`** then routes *all* tool-call and tool-result rendering through the bind-mounted `qwen3-coder-next-chat-template.jinja`, **overriding koboldcpp's default tool handling**. That template renders results as standard Qwen `<tool_response>…</tool_response>` blocks under a `user` turn — inspected and **correct**, so the template is *not* a suspect for the loop below.
+
+**Failure 1 — a re-issue livelock, caused by the `rtk-rewrite` extension (A/B confirmed).** The model re-issues an *identical* tool call (e.g. `pytest -v`, or a file read) 4–6× in a row, then emits an empty `finish=length` turn and pi exits — at only ~17–26k context, so the ~98k compaction threshold is never reached. Root cause: `extensions/rtk-rewrite.ts` rewrites every bash command through `rtk rewrite` (`pytest -v` → `rtk pytest -v`, `cat f` → `rtk read f`), and rtk **condenses the output** (e.g. `Pytest: 1 passed`, ~48 chars). The local Qwen model can't act on the terse result and re-issues the same command. **Verified by disabling `rtk-rewrite`:** bash results return full-length (hundreds–thousands of chars) and the livelock disappears — the model does real multi-step work (write → bash → edit → …). So rtk-rewrite, a token optimisation, is **counterproductive for this local model's agentic loop**; the extension is therefore **gated off by default** and only runs when `PI_RTK_REWRITE=1` (set it for a strong cloud model that tolerates condensed tool output). The rewrite proxy's own livelock warning blames the context ceiling — **misleading**; context was nowhere near it.
+
+**Failure 2 — zero-token `finish=length`, still open.** With rtk-rewrite disabled the loop gets further (milestone 1+) but still dies, and runs fail **stochastically** across three modes: the rtk livelock (now fixed), a quiet early-stop at milestone 0, and this one. Captured at the proxy, the killer turn is a *single* 273-byte koboldcpp chunk: `finish_reason:"length"` with `content:""`, **zero tokens generated** (`reasoningLen=0`, and the builder logs no `Generated:` line at all — it aborts *before* emitting a token). Critically this happens at only **~16.7k context of the 131072 ceiling (~114k of headroom)** — so it is **not** context exhaustion and **not** runaway thinking. **Verdict (probe done): koboldcpp-side, not a pi budgeting bug.** Correlating the request fields with the response confirmed pi sends **no** `max_tokens` (`undefined` on `finish=length` responses, including a 1.5 MB full-~8192-token truncation), so koboldcpp falls back to `--defaultgenamt 8192`. The empty turn therefore had a full 8192-token budget *and* ~114k of context headroom yet emitted zero tokens — so it is **koboldcpp returning a spurious zero-token `finish=length`**, consistent with the Qwen3-Next recurrent/hybrid arch being finicky in koboldcpp (the same arch that can't spec-decode and force-enables smartcache). The fix is koboldcpp-side (version bump / recurrent-model handling / sampling), **not** pi config. (Caveat: `max_tokens=undefined` was confirmed on the truncation-variant `finish=length`, not recaptured on the exact 273-byte zero-token turn this session — it is stochastic and didn't recur — but pi's `max_tokens` is invariably absent.) This — not compaction — is the current ceiling on agentic runs, so **the loop still cannot reach the compaction threshold.**
+
+**Ruled out** (each verified, not assumed): RAM (32 GB VM, usage flat ~25 GB, no crash); compaction config; model choice (builder *and* planner both fail); the chat template (renders `<tool_response>` correctly); both `models.json` compat flags (`thinkingFormat: qwen-chat-template` and `requiresAssistantAfterToolResult` are both valid per the installed `dist/core/model-registry.js` — `thinkingFormat` accepts `openai|openrouter|together|deepseek|zai|qwen|qwen-chat-template`); and the assistant-`tool_calls`-replay hypothesis (request capture confirmed assistant turns **do** keep their `tool_calls`).
+
+**Minor anomaly:** every `tool_call_id` is `call_001` (koboldcpp renumbers per request, not unique across the conversation). Not the livelock cause — the chat template strips ids from what the model sees — but worth knowing.
+
 ## Linting
 
 ```bash
