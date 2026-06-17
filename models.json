@@ -225,7 +225,7 @@
     "lemonade": {
       "baseUrl": "http://localhost:13305/api/v1",
       "api": "openai-completions",
-      "apiKey": "lemonade",
+      "apiKey": "$LEMONADE_API_KEY",
       "compat": {
         "supportsUsageInStreaming": false,
         "maxTokensField": "max_tokens",
@@ -236,6 +236,26 @@
         {
           "id": "Qwen_Qwen3.6-35B-A3B-Q5_K_M",
           "name": "Qwen3.6-35B-A3B builder (Q5_K_M, no-think)",
+          "reasoning": false,
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 114688,
+          "maxTokens": 8192,
+          "compat": {
+            "requiresToolResultName": true,
+            "requiresAssistantAfterToolResult": true
+          }
+        },
+        {
+          "id": "Qwen3.6-35B-A3B-MTP-GGUF",
+          "name": "Qwen3.6-35B-A3B MTP builder (UD-Q4_K_XL, no-think)",
           "reasoning": false,
           "input": [
             "text"
