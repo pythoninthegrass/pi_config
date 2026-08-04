@@ -222,41 +222,6 @@
         }
       ]
     },
-    "ds4": {
-      "baseUrl": "http://127.0.0.1:61525/v1",
-      "api": "openai-completions",
-      "apiKey": "dsv4-local",
-      "compat": {
-        "supportsStore": false,
-        "supportsDeveloperRole": false,
-        "supportsReasoningEffort": true,
-        "supportsUsageInStreaming": true,
-        "maxTokensField": "max_tokens",
-        "supportsStrictMode": false,
-        "thinkingFormat": "deepseek",
-        "requiresReasoningContentOnAssistantMessages": true,
-        "requiresToolResultName": true,
-        "requiresAssistantAfterToolResult": true
-      },
-      "models": [
-        {
-          "id": "deepseek-v4-flash",
-          "name": "DeepSeek V4 Flash (ds4.c local, mf)",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "contextWindow": 16384,
-          "maxTokens": 4096
-        }
-      ]
-    },
     "lemonade": {
       "baseUrl": "http://localhost:13305/api/v1",
       "api": "openai-completions",
