@@ -81,13 +81,13 @@
       ]
     },
     "aperture": {
-      "baseUrl": "http://mf.sungrazer-vernier.ts.net:61515/v1",
+      "baseUrl": "http://ai/v1",
       "api": "openai-completions",
-      "apiKey": "llama-swap",
+      "apiKey": "unused",
       "models": [
         {
           "id": "qwen3.8-27b-fp8",
-          "name": "Qwen3.8 27B FP8 (mf via llama-swap, direct)",
+          "name": "Qwen3.8 27B FP8 (mf via Aperture)",
           "reasoning": true,
           "input": [
             "text"
@@ -103,7 +103,7 @@
         },
         {
           "id": "qwen3.8-flash-next",
-          "name": "Qwen3.8 Flash Next (mf via llama-swap, direct)",
+          "name": "Qwen3.8 Flash Next (mf via Aperture)",
           "reasoning": false,
           "input": [
             "text"
