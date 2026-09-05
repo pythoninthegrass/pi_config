@@ -5,9 +5,9 @@
   "defaultThinkingLevel": "off",
   "collapseChangelog": true,
   "enableInstallTelemetry": false,
-  "enabledModels": ["github-copilot/gpt-6-astra", "aperture/qwen3.8-27b-fp8"],
+  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/qwen3.8-27b-fp8"],
   "modelThinkingLevels": {
-    "github-copilot/gpt-6-astra": "high",
+    "github-copilot/claude-opus-4.8": "high",
     "aperture/qwen3.8-27b-fp8": "off"
   },
   "compaction": {

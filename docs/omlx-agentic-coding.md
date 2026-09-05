@@ -195,7 +195,7 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
 **Keybindings:**
 
 - `shift+tab` — toggle planner/builder (`extensions/plan-mode/index.ts`): swaps model
-  (`github-copilot/gpt-6-astra` ↔ `aperture/qwen3.8-27b-fp8`), thinking level (`high` ↔
+  (`github-copilot/claude-opus-4.8` ↔ `aperture/qwen3.8-27b-fp8`), thinking level (`high` ↔
   `off`), and active tools together. `Ctrl+Alt+P` and `/plan` do the same toggle.
 - `ctrl+shift+t` — cycle thinking level: `off → minimal → low → medium → high → xhigh`
   (moved off `shift+tab`, freed for the toggle above — see `keybindings.json`)
