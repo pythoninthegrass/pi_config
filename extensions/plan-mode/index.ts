@@ -26,7 +26,7 @@ const NORMAL_MODE_TOOLS = ["read", "bash", "edit", "write"];
 // const PLANNER_MODEL = "aperture/anthropic/claude-opus-5";
 // const PLANNER_MODEL = "github-copilot/gpt-6-astra";
 const PLANNER_MODEL = "github-copilot/claude-opus-4.8";
-const BUILDER_MODEL = "aperture/qwen3.8-flash-next";
+const BUILDER_MODEL = "aperture/qwen3.8-flash-next:builder";
 
 // Split "provider/model-id" on the first slash and look it up in the registry
 function resolveModel(ctx: ExtensionContext, id: string) {
