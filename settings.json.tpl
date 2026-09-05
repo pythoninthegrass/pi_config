@@ -22,8 +22,7 @@
     "npm:context-mode",
     "npm:pi-hermes-memory",
     "npm:pi-mcp-adapter",
-    "npm:pi-lens",
-    "npm:pi-tinyfish"
+    "npm:pi-lens"
   ],
   "extensions": [
     "~/git/pi_config/extensions/plan-mode"

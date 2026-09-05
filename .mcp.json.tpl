@@ -28,13 +28,6 @@
         "ide",
         "--project-from-cwd"
       ]
-    },
-    "tinyfish": {
-      "type": "http",
-      "url": "https://agent.tinyfish.ai/mcp",
-      "headers": {
-        "X-API-Key": "${TINYFISH_API_KEY}"
-      }
     }
   }
 }
