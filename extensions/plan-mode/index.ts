@@ -22,6 +22,33 @@ import { extractTodoItems, isSafeCommand, markCompletedSteps, type TodoItem } fr
 const PLAN_MODE_TOOLS = ["read", "bash", "grep", "find", "ls", "questionnaire"];
 const NORMAL_MODE_TOOLS = ["read", "bash", "edit", "write"];
 
+// Models
+// const PLANNER_MODEL = "aperture/anthropic/claude-opus-5";
+const PLANNER_MODEL = "github-copilot/gpt-6-astra";
+const BUILDER_MODEL = "aperture/qwen3.8-27b-fp8";
+
+// Split "provider/model-id" on the first slash and look it up in the registry
+function resolveModel(pi: ExtensionAPI, id: string) {
+	const slash = id.indexOf("/");
+	const provider = id.slice(0, slash);
+	const modelId = id.slice(slash + 1);
+	return pi.modelRegistry.find(provider, modelId);
+}
+
+async function applyModel(pi: ExtensionAPI, ctx: ExtensionContext, id: string, thinking: "high" | "off"): Promise<void> {
+	const model = resolveModel(pi, id);
+	if (!model) {
+		ctx.ui.notify(`Model ${id} not found in registry - staying on current model`, "warning");
+		return;
+	}
+	const ok = await pi.setModel(model);
+	if (!ok) {
+		ctx.ui.notify(`No credentials configured for ${id} - staying on current model`, "warning");
+		return;
+	}
+	pi.setThinkingLevel(thinking);
+}
+
 // Type guard for assistant messages
 function isAssistantMessage(m: AgentMessage): m is AssistantMessage {
 	return m.role === "assistant" && Array.isArray(m.content);
@@ -73,16 +100,18 @@ export default function planModeExtension(pi: ExtensionAPI): void {
 		}
 	}
 
-	function togglePlanMode(ctx: ExtensionContext): void {
+	async function togglePlanMode(ctx: ExtensionContext): Promise<void> {
 		planModeEnabled = !planModeEnabled;
 		executionMode = false;
 		todoItems = [];
 
 		if (planModeEnabled) {
 			pi.setActiveTools(PLAN_MODE_TOOLS);
+			await applyModel(pi, ctx, PLANNER_MODEL, "high");
 			ctx.ui.notify(`Plan mode enabled. Tools: ${PLAN_MODE_TOOLS.join(", ")}`);
 		} else {
 			pi.setActiveTools(NORMAL_MODE_TOOLS);
+			await applyModel(pi, ctx, BUILDER_MODEL, "off");
 			ctx.ui.notify("Plan mode disabled. Full access restored.");
 		}
 		updateStatus(ctx);
@@ -115,6 +144,11 @@ export default function planModeExtension(pi: ExtensionAPI): void {
 
 	pi.registerShortcut(Key.ctrlAlt("p"), {
 		description: "Toggle plan mode",
+		handler: async (ctx) => togglePlanMode(ctx),
+	});
+
+	pi.registerShortcut(Key.shift("tab"), {
+		description: "Toggle planner/builder",
 		handler: async (ctx) => togglePlanMode(ctx),
 	});
 
@@ -269,6 +303,7 @@ After completing a step, include a [DONE:n] tag in your response.`,
 			planModeEnabled = false;
 			executionMode = todoItems.length > 0;
 			pi.setActiveTools(NORMAL_MODE_TOOLS);
+			await applyModel(pi, ctx, BUILDER_MODEL, "off");
 			updateStatus(ctx);
 
 			const execMessage =
@@ -334,6 +369,7 @@ After completing a step, include a [DONE:n] tag in your response.`,
 
 		if (planModeEnabled) {
 			pi.setActiveTools(PLAN_MODE_TOOLS);
+			await applyModel(pi, ctx, PLANNER_MODEL, "high");
 		}
 		updateStatus(ctx);
 	});

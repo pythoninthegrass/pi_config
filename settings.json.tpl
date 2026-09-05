@@ -5,6 +5,11 @@
   "defaultThinkingLevel": "off",
   "collapseChangelog": true,
   "enableInstallTelemetry": false,
+  "enabledModels": ["github-copilot/gpt-6-astra", "aperture/qwen3.8-27b-fp8"],
+  "modelThinkingLevels": {
+    "github-copilot/gpt-6-astra": "high",
+    "aperture/qwen3.8-27b-fp8": "off"
+  },
   "compaction": {
     "enabled": true,
     "reserveTokens": 16384,

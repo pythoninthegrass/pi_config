@@ -13,6 +13,7 @@ cd ~/git/pi_config
 mkdir -p ~/.pi/agent
 ln -sf $(pwd)/models.json ~/.pi/agent/models.json
 ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
+ln -sf $(pwd)/keybindings.json ~/.pi/agent/keybindings.json
 ln -sf $(pwd)/.mcp.json ~/.pi/agent/.mcp.json
 ln -sf $(pwd)/themes ~/.pi/agent/themes
 ln -sf $(pwd)/extensions ~/.pi/agent/extensions
