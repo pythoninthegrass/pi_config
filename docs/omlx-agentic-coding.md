@@ -183,7 +183,7 @@ For agentic coding, **thinking off** is recommended as the default — most tool
 | Agent | Endpoint | Thinking on demand | Notes |
 |---|---|---|---|
 | opencode | `/v1/chat/completions` | No | OpenAI-compatible only |
-| pi | `/v1/chat/completions` | Via `shift+tab` | Reads `reasoning_content`; see below |
+| pi | `/v1/chat/completions` | Via `tab` | Reads `reasoning_content`; see below |
 | omp | `/v1/chat/completions` | No | OpenAI-compatible only; large system prompt (~4,600 tokens) |
 
 Confirmed via `~/.omlx/logs/server.log` — requests log as `Chat completion`, not `Anthropic message`.
@@ -194,11 +194,19 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
 
 **Keybindings:**
 
-- `shift+tab` — toggle planner/builder (`extensions/plan-mode/index.ts`): swaps model
-  (`github-copilot/claude-opus-4.8` ↔ `aperture/qwen3.8-27b-fp8`), thinking level (`high` ↔
-  `off`), and active tools together. `Ctrl+Alt+P` and `/plan` do the same toggle.
+- `tab` — toggle planner/builder (`extensions/plan-mode/index.ts`): swaps model
+  (`github-copilot/claude-opus-4.8` ↔ `aperture/qwen3.8-flash-next`), thinking level (`high` ↔
+  `off`), and active tools together. `Ctrl+Alt+P` and `/plan` do the same toggle. Previously
+  bound to `shift+tab`, but pi core reserves that key for `app.thinking.cycle` by default, so
+  the extension's binding never fired — moved to plain `tab` (mirrors opencode's agent-cycle
+  key). This means `tab` no longer autocompletes slash-commands/file-paths while the extension
+  is loaded. Rebinding to plain `tab` also collides with the separate built-in `tui.input.tab`
+  action, which pi flags at startup as an "Extension shortcut conflict" — harmless (extension
+  shortcuts are checked before any built-in action, so `tab` always triggers the toggle), but
+  `keybindings.json` explicitly unbinds `tui.input.tab` (`[]`) to silence the warning.
 - `ctrl+shift+t` — cycle thinking level: `off → minimal → low → medium → high → xhigh`
-  (moved off `shift+tab`, freed for the toggle above — see `keybindings.json`)
+  (remapped off `shift+tab` in `keybindings.json`; no longer required now that the toggle
+  above uses `tab`, but left in place)
 - `ctrl+p` / `shift+ctrl+p` — cycle models (overwrites `settings.json` — avoid if you want a stable default)
 - `ctrl+l` — model picker
 

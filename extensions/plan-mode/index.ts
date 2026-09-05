@@ -26,18 +26,18 @@ const NORMAL_MODE_TOOLS = ["read", "bash", "edit", "write"];
 // const PLANNER_MODEL = "aperture/anthropic/claude-opus-5";
 // const PLANNER_MODEL = "github-copilot/gpt-6-astra";
 const PLANNER_MODEL = "github-copilot/claude-opus-4.8";
-const BUILDER_MODEL = "aperture/qwen3.8-27b-fp8";
+const BUILDER_MODEL = "aperture/qwen3.8-flash-next";
 
 // Split "provider/model-id" on the first slash and look it up in the registry
-function resolveModel(pi: ExtensionAPI, id: string) {
+function resolveModel(ctx: ExtensionContext, id: string) {
 	const slash = id.indexOf("/");
 	const provider = id.slice(0, slash);
 	const modelId = id.slice(slash + 1);
-	return pi.modelRegistry.find(provider, modelId);
+	return ctx.modelRegistry.find(provider, modelId);
 }
 
 async function applyModel(pi: ExtensionAPI, ctx: ExtensionContext, id: string, thinking: "high" | "off"): Promise<void> {
-	const model = resolveModel(pi, id);
+	const model = resolveModel(ctx, id);
 	if (!model) {
 		ctx.ui.notify(`Model ${id} not found in registry - staying on current model`, "warning");
 		return;
@@ -148,7 +148,7 @@ export default function planModeExtension(pi: ExtensionAPI): void {
 		handler: async (ctx) => togglePlanMode(ctx),
 	});
 
-	pi.registerShortcut(Key.shift("tab"), {
+	pi.registerShortcut(Key.tab, {
 		description: "Toggle planner/builder",
 		handler: async (ctx) => togglePlanMode(ctx),
 	});

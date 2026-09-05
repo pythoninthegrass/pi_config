@@ -5,10 +5,10 @@
   "defaultThinkingLevel": "off",
   "collapseChangelog": true,
   "enableInstallTelemetry": false,
-  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/qwen3.8-27b-fp8"],
+  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/qwen3.8-flash-next"],
   "modelThinkingLevels": {
     "github-copilot/claude-opus-4.8": "high",
-    "aperture/qwen3.8-27b-fp8": "off"
+    "aperture/qwen3.8-flash-next": "off"
   },
   "compaction": {
     "enabled": true,
