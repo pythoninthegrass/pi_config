@@ -84,6 +84,9 @@
       "baseUrl": "http://ai/v1",
       "api": "openai-completions",
       "apiKey": "unused",
+      "compat": {
+        "maxTokensField": "max_tokens"
+      },
       "models": [
         {
           "id": "qwen3.8-27b-fp8",
@@ -115,7 +118,7 @@
             "cacheWrite": 0
           },
           "contextWindow": 262144,
-          "maxTokens": 8192
+          "maxTokens": 16384
         }
       ]
     },
