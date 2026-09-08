@@ -4,6 +4,7 @@
 *.yml
 CLAUDE.md
 settings.json
+web-search.json
 
 # General
 .DS_Store
@@ -62,3 +63,4 @@ tmbootpicker.efi
 !AGENTS.md
 !settings.json.tpl
 !.mcp.json.tpl
+!web-search.json.tpl
