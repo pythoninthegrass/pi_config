@@ -41,7 +41,6 @@
     "git:github.com/pythoninthegrass/pi-omlx-picker@main",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:context-mode",
-    "npm:pi-hermes-memory",
     "npm:pi-mcp-adapter",
     "npm:pi-lens",
     "npm:pi-web-access"
