@@ -195,7 +195,7 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
 **Keybindings:**
 
 - `tab` — toggle planner/builder (`extensions/plan-mode/index.ts`): swaps model
-  (`github-copilot/claude-opus-4.8` ↔ `aperture/qwen3.8-flash-next:builder`), thinking level (`high` ↔
+  (`github-copilot/claude-opus-4.8` ↔ `aperture/qwen3.8-flash-next-iq4`), thinking level (`high` ↔
   `off`), and active tools together. `Ctrl+Alt+P` and `/plan` do the same toggle. Previously
   bound to `shift+tab`, but pi core reserves that key for `app.thinking.cycle` by default, so
   the extension's binding never fired — moved to plain `tab` (mirrors opencode's agent-cycle

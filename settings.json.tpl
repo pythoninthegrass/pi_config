@@ -5,10 +5,10 @@
   "defaultThinkingLevel": "off",
   "collapseChangelog": true,
   "enableInstallTelemetry": false,
-  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/qwen3.8-flash-next-iq4:builder", "aperture/qwen3.5-9b"],
+  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/qwen3.8-flash-next-iq4", "aperture/qwen3.5-9b"],
   "modelThinkingLevels": {
     "github-copilot/claude-opus-4.8": "high",
-    "aperture/qwen3.8-flash-next-iq4:builder": "off",
+    "aperture/qwen3.8-flash-next-iq4": "off",
     "aperture/qwen3.5-9b": "off"
   },
   "subagents": {
@@ -18,15 +18,15 @@
         "thinking": "off"
       },
       "worker": {
-        "model": "aperture/qwen3.8-flash-next-iq4:builder",
+        "model": "aperture/qwen3.8-flash-next-iq4",
         "thinking": "off"
       },
       "reviewer": {
-        "model": "aperture/qwen3.8-flash-next-iq4:builder",
+        "model": "aperture/qwen3.8-flash-next-iq4",
         "thinking": "off"
       },
       "delegate": {
-        "model": "aperture/qwen3.8-flash-next-iq4:builder",
+        "model": "aperture/qwen3.8-flash-next-iq4",
         "thinking": "off"
       }
     }
