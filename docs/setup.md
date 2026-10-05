@@ -29,7 +29,7 @@ Installation guide for the [pi](https://pi.dev) coding agent on macOS (omlx back
 
 ```bash
 # Install pi (skip if `which pi` resolves)
-npm install -g @mariozechner/pi-coding-agent
+npm install -g @earendil-works/pi-coding-agent
 
 # Clone this repo
 git clone https://github.com/pythoninthegrass/pi_config.git ~/git/pi_config
@@ -84,24 +84,24 @@ Packages auto-installed by pi on first launch: `context-mode` (WSL only — stri
 
 ## MCP servers
 
+pi has a native MCP client ([docs](https://pi.dev/docs/latest/mcp)). It reads `~/.pi/agent/mcp.json`, which is the symlink to the rendered `.mcp.json`. Servers are defined in `.mcp.json.tpl`.
+
 | Server | Prereq | Notes |
 |---|---|---|
 | backlog | `backlog` CLI | `npm install -g backlog.md` |
 | context-mode | auto | WSL only |
 | context7 | `npx` | — |
-| linear | `npx` | one-time OAuth — see below |
-| screencap | uv project | macOS only; set `SCREENCAP_DIR` in `.env` |
 | serena | `uvx` | clones on first launch |
 
-### Linear OAuth (first run)
+Check connections outside a session with `pi mcp list`, or inside one with `/mcp`. Run `/reload` after changing the file.
 
-`mcp-remote` runs as a pi subprocess so the OAuth URL isn't visible inside pi. Run it directly in a separate terminal:
+### Adding a server
 
-```bash
-npx -y mcp-remote https://mcp.linear.app/mcp
-```
+Edit `.mcp.json.tpl`, re-source the shell to render it, then run `/reload`. Do not use `pi mcp add` for user-level servers: it writes through the symlink to the rendered `.mcp.json`, and the next shell startup overwrites it. `pi mcp add --local` writes a per-project `.pi/mcp.json` and is safe.
 
-Open the printed URL in a browser and complete the OAuth flow. Token is cached under `~/.mcp-auth/`. Restart pi — mcp-remote connects automatically thereafter.
+### OAuth servers
+
+Remote servers that use OAuth (e.g. Linear at `https://mcp.linear.app/mcp`) need only a `url` entry in `.mcp.json.tpl`, no `mcp-remote` wrapper. Sign in once with `/mcp login <server>` inside pi, or `pi mcp login <server>` from a shell. Tokens are stored in `~/.pi/agent/mcp-auth.json`.
 
 ## Mac → WSL koboldcpp (optional)
 
@@ -132,8 +132,8 @@ Then switch to koboldcpp models inside pi with `ctrl+l`. To make koboldcpp the p
 # Confirm default provider responds
 pi -p "Reply with one word: hello"
 
-# Check MCP servers loaded (inside pi)
-/mcp
+# Confirm MCP servers connect
+pi mcp list
 ```
 
 **WSL — confirm koboldcpp endpoints:**
