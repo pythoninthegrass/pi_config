@@ -17,7 +17,7 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 | `config.yml` | omp settings (rendered) | symlinked to `~/.omp/agent/config.yml` |
 | `models.yml.tpl` | omp models template (envsubst source) | rendered → `models.yml` at shell startup |
 | `config.yml.tpl` | omp config template (envsubst source) | rendered → `config.yml` at shell startup |
-| `.mcp.json` | MCP server config for pi-mcp-adapter (rendered) | symlinked to `~/.config/mcp/mcp.json` |
+| `.mcp.json` | MCP server config for pi's native MCP client (rendered) | symlinked to `~/.pi/agent/mcp.json` |
 | `.mcp.json.tpl` | MCP config template (envsubst source) | rendered → `.mcp.json` at shell startup |
 | `themes/` | pi color themes | symlinked to `~/.pi/agent/themes/` |
 | `extensions/` | pi extensions (rtk auto-rewrite hook) | symlinked to `~/.pi/agent/extensions/` |
@@ -31,7 +31,7 @@ Configuration for the `pi` and `omp` coding agents backed by a local oMLX infere
 - `models.yml.tpl` interpolates `OMLX_BASE_URL` and `OMLX_API_KEY`
 - `config.yml.tpl` has no variable substitutions (static template)
 - `settings.json.tpl` interpolates `PI_DEFAULT_PROVIDER` and `PI_DEFAULT_MODEL`; it also carries tuned compaction values (`reserveTokens`, `keepRecentTokens`) — change those here, not in the rendered file
-- `.mcp.json.tpl` interpolates `$LIGHTPANDA_TOKEN` only; other `${VAR}` placeholders (e.g. `SCREENCAP_DIR`) are left literal for pi-mcp-adapter to resolve at runtime
+- `.mcp.json.tpl` interpolates `$LIGHTPANDA_TOKEN` only; other `${VAR}` placeholders (e.g. `SCREENCAP_DIR`) are left literal for pi to resolve at runtime
 
 `.yml` files, `settings.json`, and `.mcp.json` are gitignored — only the `.tpl` sources are tracked. Edit the `.tpl` files, not the rendered output: edits to a rendered file are silently overwritten at the next shell startup (and never tracked by git).
 
@@ -83,7 +83,7 @@ ln -sf $(pwd)/models.yml ~/.omp/agent/models.yml
 ln -sf $(pwd)/config.yml ~/.omp/agent/config.yml
 ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
 ln -sf $(pwd)/models.json ~/.pi/agent/models.json
-mkdir -p ~/.config/mcp && ln -sf $(pwd)/.mcp.json ~/.config/mcp/mcp.json
+ln -sf $(pwd)/.mcp.json ~/.pi/agent/mcp.json
 ln -sf $(pwd)/themes ~/.pi/agent/themes
 ln -sf $(pwd)/extensions ~/.pi/agent/extensions
 ln -sf $(pwd)/agents ~/.pi/agent/agents
@@ -108,8 +108,8 @@ Always use Context7 MCP when I need library/API documentation, code generation, 
 
 - `models.yml` / `config.yml` must not be committed (gitignored). Only edit their `.tpl` sources.
 - `models.json` `apiKey` values: `$`-prefixed for env-var resolution (`$OMLX_API_KEY`, `$LLAMACPP_API_KEY`), bare for literal keys (koboldcpp's `kobold`). Do not convert the `$`-form back to bare names — newer pi re-migrates them to `$`-form on startup, re-dirtying the tree.
-- **MCP**: pi core has no native MCP (see pi README "No MCP"); support comes from the `pi-mcp-adapter` package. It reads, in precedence order (shallow merge, later wins): `~/.config/mcp/mcp.json` → `~/.pi/agent/mcp.json` → `<cwd>/.mcp.json` → `<cwd>/.pi/mcp.json`. The legacy `~/.pi/agent/.mcp.json` (dotted) path is **not** read by the adapter. Symlink the rendered `.mcp.json` to `~/.config/mcp/mcp.json` so servers load globally (all repos), not only when launched from this repo.
-- **MCP merge is additive-only**: a per-repo `.mcp.json` / `.pi/mcp.json` can ADD or REPLACE (by same name) servers, but cannot REMOVE or disable a server defined in a global source — there is no `disabled`/`enabled` flag. To keep a server out of a repo, omit it from all global sources and opt in per-repo.
+- **MCP**: pi has a native MCP client (see `docs/mcp.md` in the pi package). It reads user servers from `~/.pi/agent/mcp.json` and project servers from `.pi/mcp.json` (project config requires trust); a project entry replaces a same-named user entry. Symlink the rendered `.mcp.json` to `~/.pi/agent/mcp.json` so servers load globally. Validate with `pi mcp list` or `/mcp` inside a session; run `/reload` after changing the file.
+- **MCP project overrides**: a `.pi/mcp.json` entry with no `command`/`url`/`type` overrides only `enabled`, `exposure` and `toolExposure` of the same-named user server, so a repo can disable a global server with `{"mcpServers": {"<name>": {"enabled": false}}}`.
 - **pi binary location (WSL is the primary host; macOS is secondary)**: pi is installed through a mise-managed `node` runtime (`~/.local/share/mise/installs/node/<ver>/bin/pi`). In an interactive WSL shell mise puts `pi` on PATH (`which pi` resolves it). Over a non-interactive `ssh wsl …` mise is not activated, so `pi`, `mise`, and even `node` are all off PATH: `ssh wsl pi …` gives `command not found`, and calling pi's full path also fails (its shebang can't find `node`). The reliable automation form is `ssh wsl '~/.local/bin/mise exec -- pi …'` — full mise path, then `mise exec` to set up the node env.
 - The active inference backend must be running before launching either agent: `omlx` on `http://127.0.0.1:8000`, or `koboldcpp` on its configured ports (`models.json` lists `61516`–`61519`; `qwen3-coder-next-*` on `61519`).
 - Active default is set per machine via `PI_DEFAULT_PROVIDER` / `PI_DEFAULT_MODEL` in `.env`, rendered into `settings.json` at shell startup. Current defaults: `omlx` + `Qwen3.6-35B-A3B-bf16` (Studio, 128GB) / `Qwen3.6-35B-A3B-MLX-8bit` (MBP, 64GB), or `aperture` + `swift-qwen3.8-27b` (`mf`'s SGLang/llama-swap, routed through the tailnet `ai`/Aperture gateway at `http://ai/v1` for centralized auth, telemetry, and session tracking — see `~/git/tailscale_config/aperture.hujson`'s `mf` provider block for the upstream registration; thinking is controlled per-request via `chat_template_kwargs.enable_thinking`, driven by `modelThinkingLevels`/`subagents.agentOverrides.<name>.thinking` now that the model is declared `reasoning: true` with `compat.thinkingFormat: "qwen-chat-template"` in `models.json` — there is no separate `:builder`-suffixed model ID anymore). All model IDs are listed in `models.json` / `models.yml.tpl`.

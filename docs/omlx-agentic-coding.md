@@ -223,8 +223,7 @@ pi renders `reasoning_content` from oMLX's `/v1/chat/completions` responses as t
   "enableInstallTelemetry": false,
   "compaction": { "enabled": true },
   "packages": [
-    "git:github.com/pythoninthegrass/pi-omlx-picker@main",
-    "npm:pi-mcp-adapter"
+    "git:github.com/pythoninthegrass/pi-omlx-picker@main"
   ],
   "warnings": { "anthropicExtraUsage": false },
   "theme": "adventure-time"

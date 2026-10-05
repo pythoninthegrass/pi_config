@@ -14,7 +14,7 @@ mkdir -p ~/.pi/agent
 ln -sf $(pwd)/models.json ~/.pi/agent/models.json
 ln -sf $(pwd)/settings.json ~/.pi/agent/settings.json
 ln -sf $(pwd)/keybindings.json ~/.pi/agent/keybindings.json
-ln -sf $(pwd)/.mcp.json ~/.pi/agent/.mcp.json
+ln -sf $(pwd)/.mcp.json ~/.pi/agent/mcp.json
 ln -sf $(pwd)/themes ~/.pi/agent/themes
 ln -sf $(pwd)/extensions ~/.pi/agent/extensions
 
@@ -55,7 +55,7 @@ Expected results on M4 Max 64GB with `Qwen3.6-35B-A3B-MLX-8bit`:
 - [pi docs](https://pi.dev/docs/latest): preferred agent; smaller system prompt, faster on local models
 - [pi providers](https://pi.dev/docs/latest/providers)
 - [pi custom models](https://pi.dev/docs/latest/models)
-- [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter): bridges MCP servers to pi's tool interface
+- [pi MCP docs](https://pi.dev/docs/latest/mcp): native MCP client
 - [omp / oh-my-pi](https://github.com/can1357/oh-my-pi): same codebase as pi; heavier default system prompt
 - [oMLX](https://github.com/jundot/omlx): local inference server for Apple Silicon
 - [oMLX agentic coding guide](docs/omlx-agentic-coding.md): hardware tuning, model profiles, agent config
