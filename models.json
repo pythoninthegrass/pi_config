@@ -127,7 +127,10 @@
       "api": "openai-completions",
       "apiKey": "unused",
       "compat": {
-        "maxTokensField": "max_tokens"
+        "maxTokensField": "max_tokens",
+        "supportsDeveloperRole": false,
+        "sendSessionAffinityHeaders": true,
+        "sessionAffinityFormat": "openrouter"
       },
       "models": [
         {
