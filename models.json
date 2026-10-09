@@ -105,25 +105,6 @@
           "maxTokens": 8192
         },
         {
-          "id": "swift-qwen3.8-27b",
-          "name": "Qwen3.8 27B (swift)",
-          "reasoning": true,
-          "compat": {
-            "thinkingFormat": "qwen-chat-template"
-          },
-          "input": [
-            "text"
-          ],
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "contextWindow": 262144,
-          "maxTokens": 8192
-        },
-        {
           "id": "qwen3.5-9b",
           "name": "Qwen3.5 9B Q8_0 (subagent)",
           "reasoning": false,
@@ -137,6 +118,35 @@
             "cacheWrite": 0
           },
           "contextWindow": 262144,
+          "maxTokens": 8192
+        }
+      ]
+    },
+    "switchyard": {
+      "baseUrl": "http://mf:61521/v1",
+      "api": "openai-completions",
+      "apiKey": "unused",
+      "compat": {
+        "maxTokensField": "max_tokens"
+      },
+      "models": [
+        {
+          "id": "local/coding",
+          "name": "Switchyard coding (Lightning/Qwen FP8)",
+          "reasoning": true,
+          "compat": {
+            "thinkingFormat": "qwen-chat-template"
+          },
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 131072,
           "maxTokens": 8192
         }
       ]

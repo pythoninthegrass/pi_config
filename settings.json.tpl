@@ -5,10 +5,10 @@
   "defaultThinkingLevel": "off",
   "collapseChangelog": true,
   "enableInstallTelemetry": false,
-  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/swift-qwen3.8-27b", "aperture/qwen3.5-9b"],
+  "enabledModels": ["github-copilot/claude-opus-4.8", "switchyard/local/coding", "aperture/qwen3.5-9b"],
   "modelThinkingLevels": {
     "github-copilot/claude-opus-4.8": "high",
-    "aperture/swift-qwen3.8-27b": "off",
+    "switchyard/local/coding": "off",
     "aperture/qwen3.5-9b": "off"
   },
   "subagents": {
@@ -18,15 +18,15 @@
         "thinking": "off"
       },
       "worker": {
-        "model": "aperture/swift-qwen3.8-27b",
+        "model": "switchyard/local/coding",
         "thinking": "off"
       },
       "reviewer": {
-        "model": "aperture/swift-qwen3.8-27b",
+        "model": "switchyard/local/coding",
         "thinking": "off"
       },
       "delegate": {
-        "model": "aperture/swift-qwen3.8-27b",
+        "model": "switchyard/local/coding",
         "thinking": "off"
       }
     }
