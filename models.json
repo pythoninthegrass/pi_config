@@ -135,7 +135,7 @@
       "models": [
         {
           "id": "local/coding",
-          "name": "Switchyard coding (Lightning/Qwen FP8)",
+          "name": "Switchyard coding (Tiel/Qwen FP8)",
           "reasoning": true,
           "compat": {
             "thinkingFormat": "qwen-chat-template"
