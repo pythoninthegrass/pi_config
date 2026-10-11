@@ -45,7 +45,8 @@
     "npm:pi-web-access"
   ],
   "extensions": [
-    "~/git/pi_config/extensions/plan-mode"
+    "~/git/pi_config/extensions/plan-mode",
+    "$HOME/.hindsight/coding-agents/dist/pi.js"
   ],
   "warnings": {
     "anthropicExtraUsage": false
