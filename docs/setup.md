@@ -91,7 +91,6 @@ pi has a native MCP client ([docs](https://pi.dev/docs/latest/mcp)). It reads `~
 | backlog | `backlog` CLI | `npm install -g backlog.md` |
 | context-mode | auto | WSL only |
 | context7 | `npx` | — |
-| serena | `uvx` | clones on first launch |
 
 Check connections outside a session with `pi mcp list`, or inside one with `/mcp`. Run `/reload` after changing the file.
 
