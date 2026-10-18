@@ -42,11 +42,11 @@
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:context-mode",
     "npm:pi-lens",
-    "npm:pi-web-access"
+    "npm:pi-web-access",
+    "npm:@sting8k/pi-vcc"
   ],
   "extensions": [
-    "~/git/pi_config/extensions/plan-mode",
-    "$HOME/.hindsight/coding-agents/dist/pi.js"
+    "~/git/pi_config/extensions/plan-mode"
   ],
   "warnings": {
     "anthropicExtraUsage": false
