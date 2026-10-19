@@ -46,7 +46,8 @@
     "npm:@sting8k/pi-vcc"
   ],
   "extensions": [
-    "~/git/pi_config/extensions/plan-mode"
+    "~/git/pi_config/extensions/plan-mode",
+    "~/git/pi_config/extensions/honcho"
   ],
   "warnings": {
     "anthropicExtraUsage": false
