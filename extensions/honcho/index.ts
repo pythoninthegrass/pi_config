@@ -1,7 +1,7 @@
 /**
  * Honcho per-repo memory recorder (Pi extension).
  *
- * Records each repo conversation to Honcho's REST API on loopback :8000.
+ * Records each repo conversation to the shared Honcho REST API on mf :8000.
  * One Honcho session per repo, keyed by the repo path (sanitized to
  * ^[a-zA-Z0-9_-]+$, max 200 chars). Two peers are attached to every session:
  *   - "lance"      (observe_me, observe_others)
@@ -21,7 +21,7 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 
-const HONCHO = process.env.HONCHO_BASE || "http://127.0.0.1:8000";
+const HONCHO = process.env.HONCHO_BASE || "http://mf:8000";
 const WORKSPACE = "lance";
 const PEERS = ["lance", "Assistant"];
 
