@@ -90,7 +90,7 @@
       "models": [
         {
           "id": "strata-flash-next",
-          "name": "Strata Flash-Next (Coder IQ1_M)",
+          "name": "Strata Flash-Next (IQ3_XXS)",
           "reasoning": true,
           "input": [
             "text",
