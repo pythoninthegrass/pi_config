@@ -90,10 +90,11 @@
       "models": [
         {
           "id": "strata-flash-next",
-          "name": "Strata Flash-Next (UD-Q4_K_XL)",
+          "name": "Strata Flash-Next (Coder IQ1_M)",
           "reasoning": true,
           "input": [
-            "text"
+            "text",
+            "image"
           ],
           "cost": {
             "input": 0,
@@ -125,7 +126,8 @@
             "thinkingFormat": "qwen-chat-template"
           },
           "input": [
-            "text"
+            "text",
+            "image"
           ],
           "cost": {
             "input": 0,
