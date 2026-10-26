@@ -120,7 +120,7 @@
       "models": [
         {
           "id": "local/coding",
-          "name": "Switchyard (Tiel/Strata)",
+          "name": "Switchyard (Ornith/Strata)",
           "reasoning": true,
           "compat": {
             "thinkingFormat": "qwen-chat-template"
