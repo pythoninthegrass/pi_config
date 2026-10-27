@@ -89,23 +89,6 @@
       },
       "models": [
         {
-          "id": "strata-flash-next",
-          "name": "Strata Flash-Next (IQ3_XXS)",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "contextWindow": 262144,
-          "maxTokens": 32768
-        },
-        {
           "id": "local/coding",
           "name": "Qwen3.8-Flash-Next via Aperture",
           "reasoning": true,

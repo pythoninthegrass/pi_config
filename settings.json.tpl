@@ -5,11 +5,10 @@
   "defaultThinkingLevel": "off",
   "collapseChangelog": true,
   "enableInstallTelemetry": false,
-  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/local/coding", "aperture/strata-flash-next"],
+  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/local/coding"],
   "modelThinkingLevels": {
     "github-copilot/claude-opus-4.8": "high",
-    "aperture/local/coding": "off",
-    "aperture/strata-flash-next": "off"
+    "aperture/local/coding": "off"
   },
   "subagents": {
     "agentOverrides": {
