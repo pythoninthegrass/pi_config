@@ -104,6 +104,26 @@
           },
           "contextWindow": 262144,
           "maxTokens": 32768
+        },
+        {
+          "id": "local/coding",
+          "name": "Qwen3.8-Flash-Next via Aperture",
+          "reasoning": true,
+          "compat": {
+            "thinkingFormat": "qwen-chat-template"
+          },
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 262144,
+          "maxTokens": 8192
         }
       ]
     },
@@ -120,7 +140,7 @@
       "models": [
         {
           "id": "local/coding",
-          "name": "Switchyard (Ornith/Strata)",
+          "name": "Qwen3.8-Flash-Next (direct)",
           "reasoning": true,
           "compat": {
             "thinkingFormat": "qwen-chat-template"

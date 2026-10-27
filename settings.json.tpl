@@ -5,28 +5,28 @@
   "defaultThinkingLevel": "off",
   "collapseChangelog": true,
   "enableInstallTelemetry": false,
-  "enabledModels": ["github-copilot/claude-opus-4.8", "switchyard/local/coding", "aperture/strata-flash-next"],
+  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/local/coding", "aperture/strata-flash-next"],
   "modelThinkingLevels": {
     "github-copilot/claude-opus-4.8": "high",
-    "switchyard/local/coding": "off",
+    "aperture/local/coding": "off",
     "aperture/strata-flash-next": "off"
   },
   "subagents": {
     "agentOverrides": {
       "scout": {
-        "model": "switchyard/local/coding",
+        "model": "aperture/local/coding",
         "thinking": "off"
       },
       "worker": {
-        "model": "switchyard/local/coding",
+        "model": "aperture/local/coding",
         "thinking": "off"
       },
       "reviewer": {
-        "model": "switchyard/local/coding",
+        "model": "aperture/local/coding",
         "thinking": "off"
       },
       "delegate": {
-        "model": "switchyard/local/coding",
+        "model": "aperture/local/coding",
         "thinking": "off"
       }
     }
