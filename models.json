@@ -110,8 +110,8 @@
         }
       ]
     },
-    "switchyard": {
-      "baseUrl": "http://mf:61521/v1",
+    "qwen3-8-flash-next": {
+      "baseUrl": "http://mf.sungrazer-vernier.ts.net:61521/v1",
       "api": "openai-completions",
       "apiKey": "unused",
       "compat": {
