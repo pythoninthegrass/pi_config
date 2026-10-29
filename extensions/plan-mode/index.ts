@@ -25,7 +25,8 @@ const NORMAL_MODE_TOOLS = ["read", "bash", "edit", "write"];
 // Models
 // const PLANNER_MODEL = "aperture/anthropic/claude-opus-5";
 // const PLANNER_MODEL = "github-copilot/gpt-6-astra";
-const PLANNER_MODEL = "github-copilot/claude-opus-4.8";
+// const PLANNER_MODEL = "github-copilot/claude-opus-4.8";
+const PLANNER_MODEL = "fireworks/glm-flash-latest";
 const BUILDER_MODEL = "aperture/local/coding";
 
 // Split "provider/model-id" on the first slash and look it up in the registry
