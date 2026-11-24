@@ -109,14 +109,12 @@
           "maxTokens": 8192
         },
         {
-          "id": "qwen3.8-flash-next-sushi",
-          "name": "Qwen3.8-Flash-Next Sushi 3bpw via Aperture (mini-nw)",
+          "id": "Inkling-2-Mini",
+          "name": "Inkling 2 Mini via Aperture (mini-nw)",
           "reasoning": true,
-          "compat": {
-            "thinkingFormat": "qwen-chat-template"
-          },
           "input": [
-            "text"
+            "text",
+            "image"
           ],
           "cost": {
             "input": 0,
@@ -124,7 +122,7 @@
             "cacheRead": 0,
             "cacheWrite": 0
           },
-          "contextWindow": 206336,
+          "contextWindow": 131072,
           "maxTokens": 8192
         }
       ]

@@ -5,11 +5,11 @@
   "defaultThinkingLevel": "off",
   "collapseChangelog": true,
   "enableInstallTelemetry": false,
-  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/local/coding", "aperture/qwen3.8-flash-next-sushi"],
+  "enabledModels": ["github-copilot/claude-opus-4.8", "aperture/local/coding", "aperture/Inkling-2-Mini"],
   "modelThinkingLevels": {
     "github-copilot/claude-opus-4.8": "high",
     "aperture/local/coding": "off",
-    "aperture/qwen3.8-flash-next-sushi": "off"
+    "aperture/Inkling-2-Mini": "off"
   },
   "subagents": {
     "agentOverrides": {
